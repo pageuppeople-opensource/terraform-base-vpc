@@ -32,7 +32,8 @@ resource "aws_security_group" "bastion" {
 module "bastion_servers_a" {
   source = "./bastion"
 
-  name = "bastion_server_a"
+  name = "a"
+  environment = "${var.environment}"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"
@@ -47,7 +48,8 @@ module "bastion_servers_a" {
 module "bastion_servers_b" {
   source = "./bastion"
 
-  name = "bastion_server_b"
+  name = "b"
+  environment = "${var.environment}"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"

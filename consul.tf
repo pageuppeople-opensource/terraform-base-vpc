@@ -69,6 +69,7 @@ module "consul_servers_a" {
   source = "./consul_server"
 
   name = "a"
+  environment = "${var.environment}"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"
@@ -86,6 +87,7 @@ module "consul_servers_b" {
   source = "./consul_server"
 
   name = "b"
+  environment = "${var.environment}"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"

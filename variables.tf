@@ -3,6 +3,16 @@ variable "private_hosted_zone_name" {}
 variable "public_hosted_zone_id" {}
 /*variable "public_hosted_zone_name" {}*/
 
+variable "vpc_name" {
+  description = "the name of the vpc"
+  default = "default"
+}
+
+variable "environment" {
+  description = "the name of the environment"
+  default = "default"
+}
+
 variable "role_tag" {
   description = "Role of the ec2 instance, defaults to <SERVICE>"
   default = "SERVICE"
@@ -24,6 +34,25 @@ variable "stream_tag" {
 }
 
 ###################################################################
+# Vpc Peering configuration below
+###################################################################
+
+### MANDATORY ###
+variable "aws_peer_owner_id"{
+  description="vpc peering id"
+}
+
+### MANDATORY ###
+variable "aws_parent_vpc_id"{
+  description="parent vpc id"
+}
+
+### MANDATORY ###
+variable "aws_parent_vpc_cidr"{
+  description="parent vpc cidr"
+}
+
+###################################################################
 # AWS configuration below
 ###################################################################
 variable "bastion_key_name" {
@@ -40,7 +69,6 @@ variable "aws_region" {
   description = "AWS region to launch servers."
   default = "ap-southeast-2"
 }
-
 
 # the ability to add additional existing security groups.
 variable "additional_security_groups" {
@@ -73,12 +101,40 @@ variable "internal_cidr_blocks"{
   default = "0.0.0.0/0"
 }
 
+variable "nat_subnet_cidr"{
+}
+
 ### MANDATORY ###
 variable "public_subnet_cidr_a"{
 }
 
 ### MANDATORY ###
 variable "public_subnet_cidr_b"{
+}
+
+### MANDATORY ###
+variable "private_subnet_cidr_a"{
+}
+
+### MANDATORY ###
+variable "private_subnet_cidr_b"{
+}
+
+###################################################################
+# NAT configuration below
+###################################################################
+
+variable "amazon_nat_ami" {
+  default = {
+    eu-central-1 = "ami-46073a5b"
+    ap-southeast-1 = "ami-b49dace6"
+    ap-southeast-2 = "ami-e7ee9edd"
+    us-west-1 = "ami-7da94839"
+  }
+}
+
+variable "nat_role_tag" {
+  default = "NETWORK"
 }
 
 ###################################################################

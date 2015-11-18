@@ -1,4 +1,5 @@
 variable "name" {}
+variable "environment" {}
 variable "stream_tag" {}
 variable "role_tag" {}
 variable "environment_tag" {}
@@ -10,12 +11,6 @@ variable "subnet_id" {}
 variable "instance_type" {}
 
 resource "aws_instance" "bastion" {
-  /*connection {*/
-    /*# using amazon linux instead of ubuntu*/
-    /*user = "ec2-user"*/
-    /*key_file = "${var.key_path}"*/
-  /*}*/
-
   ami = "${var.ami}"
   instance_type = "${var.instance_type}"
   key_name = "${var.key_name}"
@@ -25,7 +20,7 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
   source_dest_check = false
   tags = {
-    Name = "${var.name}"
+    Name = "bastion_server_${var.environment}-${var.name}"
     Stream = "${var.stream_tag}"
     ServerRole = "${var.role_tag}"
     "Cost Center" = "${var.costcenter_tag}"
