@@ -1,4 +1,4 @@
-Bastion servers on AWS using Terraform
+Public subnets, Bastion & Consul cluster on AWS using Terraform
 =============
 
 ## Requirements
@@ -34,7 +34,7 @@ hosted_zone_name="<some.internal>"
 You can also modify the `variables.tf` file, replacing correct values for `aws_amis` for your region:
 
 ```
-variable "aws_bastion_amis" {
+variable "bastion_amis" {
   default = {
 		ap-southeast-2 = "ami-xxxxxxx"
   }
@@ -66,4 +66,3 @@ terraform apply -var-file ~/.aws/default.tfvars -state='environment/development.
 ## TODO
 
 * Finish This README
-* Move subnet provisioning into bastion module

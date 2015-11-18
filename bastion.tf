@@ -33,9 +33,8 @@ module "bastion_servers_a" {
   source = "./bastion"
 
   name = "bastion_server_a"
-  key_path = "${var.key_path}"
+  key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
-  key_name = "${var.key_name}"
   security_groups = "${aws_security_group.bastion.id}"
   subnet_id = "${aws_subnet.public_a.id}"
   instance_type = "${var.bastion_instance_type}"
@@ -49,9 +48,8 @@ module "bastion_servers_b" {
   source = "./bastion"
 
   name = "bastion_server_b"
-  key_path = "${var.key_path}"
+  key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
-  key_name = "${var.key_name}"
   security_groups = "${aws_security_group.bastion.id}"
   subnet_id = "${aws_subnet.public_b.id}"
   instance_type = "${var.bastion_instance_type}"

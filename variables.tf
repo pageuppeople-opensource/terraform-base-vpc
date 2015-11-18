@@ -26,14 +26,14 @@ variable "stream_tag" {
 ###################################################################
 # AWS configuration below
 ###################################################################
-variable "key_name" {
+variable "bastion_key_name" {
   description = "Name of the SSH keypair to use in AWS."
-  default = "elastic"
+  default = "bastion"
 }
 
-### MANDATORY ###
-variable "key_path" {
-  description = "Path to the private portion of the SSH key specified."
+variable "public_key_name" {
+  description = "Name of the SSH keypair to use in AWS."
+  default = "public"
 }
 
 variable "aws_region" {
