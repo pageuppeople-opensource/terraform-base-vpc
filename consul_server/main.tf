@@ -1,16 +1,16 @@
 variable "name" {}
-variable "environment" {}
 variable "role_tag" {}
 variable "environment_tag" {}
 variable "costcenter_tag" {}
 variable "stream_tag" {}
-variable "key_name" {}
 variable "ami" {}
 variable "instance_type" {}
 variable "region" {}
 variable "subnet_id" {}
 variable "security_groups" {}
 variable "num_nodes" {}
+variable "total_nodes" {}
+variable "key_name" {}
 
 resource "aws_instance" "consul" {
 
@@ -30,7 +30,7 @@ resource "aws_instance" "consul" {
   count = "${var.num_nodes}"
 
   tags {
-    Name = "consul_server_${var.environment}-${var.name}-${count.index+1}"
+    Name = "${var.name}-${count.index+1}"
     Stream = "${var.stream_tag}"
     consul = "server"
     # required for ops reporting

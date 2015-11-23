@@ -93,7 +93,7 @@ resource "aws_security_group" "nat" {
     from_port = 0
     to_port = 65535
     protocol = "tcp"
-    cidr_blocks = ["${var.nat_subnet_cidr}"]
+    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
   }
 
   egress {

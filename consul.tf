@@ -68,14 +68,14 @@ resource "aws_security_group" "consul_agent" {
 module "consul_servers_a" {
   source = "./consul_server"
 
-  name = "a"
-  environment = "${var.environment}"
+  name = "consul_server_${var.environment}-a"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
   subnet_id = "${aws_subnet.public_a.id}"
-  num_nodes = "${var.consul_num_nodes_subnet_a}"
+  num_nodes = "${var.consul_subnet_a_num_nodes}"
+  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   stream_tag = "${var.stream_tag}"
   role_tag = "${var.consul_role_tag}"
@@ -86,14 +86,14 @@ module "consul_servers_a" {
 module "consul_servers_b" {
   source = "./consul_server"
 
-  name = "b"
-  environment = "${var.environment}"
+  name = "consul_server_${var.environment}-b"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
   subnet_id = "${aws_subnet.public_b.id}"
-  num_nodes = "${var.consul_num_nodes_subnet_b}"
+  num_nodes = "${var.consul_subnet_b_num_nodes}"
+  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   stream_tag = "${var.stream_tag}"
   role_tag = "${var.consul_role_tag}"
@@ -110,14 +110,14 @@ resource "aws_security_group" "consul_elb" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr_blocks = ["${var.external_cidr_blocks}"]
+    cidr_blocks = ["${split(",", var.external_cidr_blocks)}"]
   }
 
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = ["${var.external_cidr_blocks}"]
+    cidr_blocks = ["${split(",", var.external_cidr_blocks)}"]
   }
 
   egress {
@@ -183,7 +183,7 @@ resource "aws_elb" "consul" {
 
 resource "aws_route53_record" "consul_private" {
   zone_id = "${aws_route53_zone.private_zone.id}"
-  name = "${var.private_hosted_zone_name}"
+  name = "consul"
   type = "A"
   ttl = "30"
   records = ["${split(",", module.consul_servers_a.private-ips)}", "${split(",", module.consul_servers_b.private-ips)}"]
@@ -191,7 +191,7 @@ resource "aws_route53_record" "consul_private" {
 
 resource "aws_route53_record" "consul_elb_private" {
   zone_id = "${aws_route53_zone.private_zone.zone_id}"
-  name = "private.${var.consul_public_hosted_zone_name}"
+  name = "private.consul"
   type = "A"
 
   alias {

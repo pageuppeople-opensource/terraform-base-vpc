@@ -202,13 +202,13 @@ variable "consul_amis" {
 }
 
 # number of nodes in zone a
-variable "consul_num_nodes_subnet_a" {
+variable "consul_subnet_a_num_nodes" {
   description = "Consul server nodes in a"
   default = "2"
 }
 
 # number of nodes in zone b
-variable "consul_num_nodes_subnet_b" {
+variable "consul_subnet_b_num_nodes" {
   description = "Consul server nodes in b"
   default = "1"
 }

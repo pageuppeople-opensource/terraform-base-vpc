@@ -1,7 +1,7 @@
-output "public-ips" {
-  value = "${join(",", aws_instance.bastion.*.public_ip)}"
+output "public-ip" {
+  value = "${aws_instance.bastion.0.public_ip}"
 }
 
 output "bastion-ids" {
-  value = "${join(",", aws_instance.bastion.*.id)}"
+  value = "${aws_instance.bastion.0.id}"
 }

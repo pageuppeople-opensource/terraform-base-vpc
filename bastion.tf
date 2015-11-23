@@ -29,11 +29,10 @@ resource "aws_security_group" "bastion" {
   }
 }
 
-module "bastion_servers_a" {
+module "bastion_server_a" {
   source = "./bastion"
 
-  name = "a"
-  environment = "${var.environment}"
+  name = "bastion_server_${var.environment}-a"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"
@@ -45,11 +44,10 @@ module "bastion_servers_a" {
   environment_tag = "${var.environment_tag}"
 }
 
-module "bastion_servers_b" {
+module "bastion_server_b" {
   source = "./bastion"
 
-  name = "b"
-  environment = "${var.environment}"
+  name = "bastion_server_${var.environment}-b"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"
@@ -66,6 +64,6 @@ resource "aws_route53_record" "bastion" {
    name = "${var.bastion_public_hosted_zone_name}"
    type = "A"
    ttl = "300"
-   records = ["${ module.bastion_servers_a.public-ips}","${ module.bastion_servers_b.public-ips}"]
+   records = ["${ module.bastion_server_a.public-ip }","${ module.bastion_server_b.public-ip }"]
 }
 

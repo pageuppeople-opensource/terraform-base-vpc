@@ -1,9 +1,9 @@
-output "bastion server public ips a"{
-  value = "${module.bastion_servers_a.public-ips}"
+output "bastion server public ip a"{
+  value = "${module.bastion_server_a.public-ip}"
 }
 
-output "bastion server public ips b"{
-  value = "${module.bastion_servers_b.public-ips}"
+output "bastion server public ip b"{
+  value = "${module.bastion_server_b.public-ip}"
 }
 
 output "consul server private ips a"{

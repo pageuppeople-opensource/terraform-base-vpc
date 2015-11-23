@@ -1,5 +1,4 @@
 variable "name" {}
-variable "environment" {}
 variable "stream_tag" {}
 variable "role_tag" {}
 variable "environment_tag" {}
@@ -20,7 +19,7 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
   source_dest_check = false
   tags = {
-    Name = "bastion_server_${var.environment}-${var.name}"
+    Name = "${var.name}"
     Stream = "${var.stream_tag}"
     ServerRole = "${var.role_tag}"
     "Cost Center" = "${var.costcenter_tag}"
