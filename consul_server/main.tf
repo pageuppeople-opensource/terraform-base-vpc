@@ -1,4 +1,5 @@
 variable "name" {}
+variable "environment" {}
 variable "role_tag" {}
 variable "environment_tag" {}
 variable "costcenter_tag" {}
@@ -32,7 +33,7 @@ resource "aws_instance" "consul" {
   tags {
     Name = "${var.name}-${count.index+1}"
     Stream = "${var.stream_tag}"
-    consul = "server"
+    consul = "server-${var.environment}"
     # required for ops reporting
     ServerRole = "${var.role_tag}"
     "Cost Center" = "${var.costcenter_tag}"

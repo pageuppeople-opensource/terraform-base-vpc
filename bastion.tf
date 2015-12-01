@@ -5,7 +5,7 @@
 resource "aws_security_group" "bastion" {
   name = "${var.bastion_security_group_name}"
   description = "Allow access from allowed_network via SSH"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   # SSH
   ingress = {
@@ -24,7 +24,7 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    Name = "bastion"
+    Name = "bastion security group ${var.environment}"
     stream = "${var.stream_tag}"
   }
 }

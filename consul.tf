@@ -4,7 +4,7 @@
 resource "aws_security_group" "consul_server" {
   name = "${var.consul_security_group_name}"
   description = "Consul server, UI and maintenance."
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   // These are for maintenance
   ingress {
@@ -30,7 +30,7 @@ resource "aws_security_group" "consul_server" {
   }
 
   tags {
-    Name = "consul server security group"
+    Name = "consul server security group ${var.environment}"
     stream = "${var.stream_tag}"
   }
 }
@@ -38,7 +38,7 @@ resource "aws_security_group" "consul_server" {
 resource "aws_security_group" "consul_agent" {
   name = "consul agent"
   description = "Consul agents internal traffic."
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   // These are for internal traffic
   ingress {
@@ -56,12 +56,8 @@ resource "aws_security_group" "consul_agent" {
   }
 
   tags {
-    Name = "consul agent security group"
+    Name = "consul agent security group ${var.environment}"
     stream = "${var.stream_tag}"
-    # required for ops reporting
-    ServerRole = "${var.role_tag}"
-    "Cost Center" = "${var.costcenter_tag}"
-    Environment = "${var.environment_tag}"
   }
 }
 
@@ -69,6 +65,7 @@ module "consul_servers_a" {
   source = "./consul_server"
 
   name = "consul_server_${var.environment}-a"
+  environment = "${var.environment}"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"
@@ -87,6 +84,7 @@ module "consul_servers_b" {
   source = "./consul_server"
 
   name = "consul_server_${var.environment}-b"
+  environment = "${var.environment}"
   region = "${var.aws_region}"
   key_name = "${var.public_key_name}"
   ami = "${lookup(var.consul_amis, var.aws_region)}"
@@ -104,7 +102,7 @@ module "consul_servers_b" {
 resource "aws_security_group" "consul_elb" {
   name = "consul elb"
   description = "http and https ports mapped to consul"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   ingress {
     from_port = 80
@@ -134,7 +132,7 @@ resource "aws_security_group" "consul_elb" {
 }
 
 resource "aws_elb" "consul" {
-  name = "consul-elb"
+  name = "${var.environment}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
   subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 
@@ -170,9 +168,6 @@ resource "aws_elb" "consul" {
 
   tags {
     Name = "consul elb"
-    ServerRole = "${var.role_tag} elb"
-    CostCenter = "${var.costcenter_tag}"
-    Environment = "${var.environment_tag}"
     Stream = "${var.stream_tag}"
   }
 }

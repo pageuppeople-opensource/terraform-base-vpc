@@ -13,11 +13,6 @@ variable "environment" {
   default = "default"
 }
 
-variable "role_tag" {
-  description = "Role of the ec2 instance, defaults to <SERVICE>"
-  default = "SERVICE"
-}
-
 variable "environment_tag" {
   description = "Role of the ec2 instance, defaults to <DEV>"
   default = "DEV"
@@ -80,12 +75,7 @@ variable "additional_security_groups" {
 ###################################################################
 
 ### MANDATORY ###
-variable "vpc_id" {
-  description = "VPC id"
-}
-
-### MANDATORY ###
-variable "internet_gateway_id"{
+variable "vpc_cidr"{
 }
 
 ### MANDATORY ###

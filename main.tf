@@ -3,13 +3,49 @@ provider "aws" {
 }
 
 ##############################################################################
+# VPC configuration
+##############################################################################
+resource "aws_vpc" "default" {
+  cidr_block = "${var.vpc_cidr}"
+  instance_tenancy = "default"
+  enable_dns_support = "true"
+  enable_dns_hostnames = "true"
+
+  tags {
+    Name = "${var.vpc_name} VPC"
+  }
+}
+
+resource "aws_internet_gateway" "default" {
+  vpc_id = "${aws_vpc.default.id}"
+
+  tags {
+    Name = "${var.vpc_name} internet gateway"
+  }
+}
+
+resource "aws_vpc_dhcp_options" "default" {
+  domain_name = "${var.aws_region}.compute.internal"
+  domain_name_servers = ["AmazonProvidedDNS"]
+
+  tags {
+    Name = "${var.vpc_name}"
+  }
+}
+
+resource "aws_vpc_dhcp_options_association" "default" {
+  vpc_id = "${aws_vpc.default.id}"
+  dhcp_options_id = "${aws_vpc_dhcp_options.default.id}"
+}
+
+##############################################################################
 # VPC Peering
 ##############################################################################
 
 resource "aws_vpc_peering_connection" "vpc_to_parent" {
   peer_owner_id = "${var.aws_peer_owner_id}"
   peer_vpc_id = "${var.aws_parent_vpc_id}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
   auto_accept = true
 
   tags {
@@ -21,25 +57,12 @@ resource "aws_vpc_peering_connection" "vpc_to_parent" {
 ##############################################################################
 # Public Subnets
 ##############################################################################
-/*resource "aws_internet_gateway" "public" {*/
-  /*vpc_id = "${var.vpc_id}"*/
-
-  /*tags {*/
-    /*Name = "public internet gateway"*/
-    /*Stream = "${var.stream_tag}"*/
-    /*ServerRole = "GATEWAY"*/
-    /*"Cost Center" = "${var.costcenter_tag}"*/
-    /*Environment = "${var.environment_tag}"*/
-  /*}*/
-/*}*/
-
 resource "aws_route_table" "public" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   route {
     cidr_block = "0.0.0.0/0"
-    /*gateway_id = "${aws_internet_gateway.public.id}"*/
-    gateway_id = "${var.internet_gateway_id}"
+    gateway_id = "${aws_internet_gateway.default.id}"
   }
 
   tags {
@@ -49,23 +72,25 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_subnet" "public_a" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
   cidr_block = "${var.public_subnet_cidr_a}"
+  map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.vpc_name} Public A"
+    Name = "${var.vpc_name}PublicA"
     stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_subnet" "public_b" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
   cidr_block = "${var.public_subnet_cidr_b}"
+  map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.vpc_name} Public B"
+    Name = "${var.vpc_name}PublicB"
     stream = "${var.stream_tag}"
   }
 }
@@ -85,9 +110,9 @@ resource "aws_route_table_association" "public_b" {
 ##############################################################################
 
 resource "aws_security_group" "nat" {
-  name = "nat search"
+  name = "${var.vpc_name} nat"
   description = "NAT search security group"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   ingress {
     from_port = 0
@@ -104,7 +129,7 @@ resource "aws_security_group" "nat" {
   }
 
   tags {
-    Name = "${var.vpc_name} nat security group"
+    Name = "${var.vpc_name} NAT security group"
     stream = "${var.stream_tag}"
   }
 }
@@ -115,7 +140,6 @@ resource "aws_instance" "nat_a" {
   # configurable plz
   instance_type = "t2.micro"
 
-  # Lookup the correct AMI based on the region we specified
   ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
 
   subnet_id = "${aws_subnet.public_a.id}"
@@ -127,7 +151,7 @@ resource "aws_instance" "nat_a" {
   source_dest_check = false
 
   tags {
-    Name = "NAT_server_${var.environment}-a"
+    Name = "NAT_${var.vpc_name}-a"
     stream = "${var.stream_tag}"
     role_tag = "${var.nat_role_tag}"
     costcenter_tag = "${var.costcenter_tag}"
@@ -141,18 +165,18 @@ resource "aws_instance" "nat_b" {
   # configurable plz
   instance_type = "t2.micro"
 
-  # Lookup the correct AMI based on the region we specified
   ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
 
   subnet_id = "${aws_subnet.public_a.id}"
   associate_public_ip_address = "true"
   security_groups = ["${aws_security_group.nat.id}"]
   key_name = "${var.public_key_name}"
+  count = "1"
 
   source_dest_check = false
 
   tags {
-    Name = "NAT_server_${var.environment}-b"
+    Name = "NAT_${var.vpc_name}-b"
     stream = "${var.stream_tag}"
     role_tag = "${var.nat_role_tag}"
     costcenter_tag = "${var.costcenter_tag}"
@@ -165,7 +189,7 @@ resource "aws_instance" "nat_b" {
 ##############################################################################
 
 resource "aws_route_table" "private_a" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   route {
       vpc_peering_connection_id = "${aws_vpc_peering_connection.vpc_to_parent.id}"
@@ -184,7 +208,7 @@ resource "aws_route_table" "private_a" {
 }
 
 resource "aws_route_table" "private_b" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   route {
       vpc_peering_connection_id = "${aws_vpc_peering_connection.vpc_to_parent.id}"
@@ -203,23 +227,23 @@ resource "aws_route_table" "private_b" {
 }
 
 resource "aws_subnet" "private_a" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
   cidr_block = "${var.private_subnet_cidr_a}"
 
   tags {
-    Name = "${var.vpc_name} Private A"
+    Name = "${var.vpc_name}PrivateA"
     stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_subnet" "private_b" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
   cidr_block = "${var.private_subnet_cidr_b}"
 
   tags {
-    Name = "${var.vpc_name} Private B"
+    Name = "${var.vpc_name}PrivateB"
     stream = "${var.stream_tag}"
   }
 }
@@ -240,7 +264,7 @@ resource "aws_route_table_association" "search_b" {
 
 resource "aws_route53_zone" "private_zone" {
   name = "${var.private_hosted_zone_name}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${aws_vpc.default.id}"
 
   tags {
     Name = "Private zone ${var.private_hosted_zone_name}"
