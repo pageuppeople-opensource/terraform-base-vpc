@@ -9,9 +9,25 @@ variable "instance_type" {}
 variable "region" {}
 variable "subnet_id" {}
 variable "security_groups" {}
+variable "key_name" {}
 variable "num_nodes" {}
 variable "total_nodes" {}
-variable "key_name" {}
+variable "dns_server" {}
+variable "consul_dc" {}
+variable "atlas" {}
+variable "atlas_token" {}
+
+resource "template_file" "user_data" {
+  filename = "${path.module}/templates/user-data.tpl"
+
+  vars {
+    dns_server  = "${var.dns_server}"
+    num_nodes   = "${var.total_nodes}"
+    consul_dc   = "${var.consul_dc}"
+    atlas       = "${var.atlas}"
+    atlas_token = "${var.atlas_token}"
+  }
+}
 
 resource "aws_instance" "consul" {
 
@@ -22,6 +38,7 @@ resource "aws_instance" "consul" {
 
   # This may be temporary
   associate_public_ip_address = "false"
+  user_data = "${template_file.user_data.rendered}"
 
   # Our Security groups
   security_groups = ["${split(",", replace(var.security_groups, "/,\s?$/", ""))}"]

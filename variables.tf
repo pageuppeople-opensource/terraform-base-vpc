@@ -202,3 +202,17 @@ variable "consul_subnet_b_num_nodes" {
   description = "Consul server nodes in b"
   default = "1"
 }
+
+variable "dns_server" {
+}
+
+variable "consul_dc" {
+  default = "dev"
+}
+
+variable "atlas" {
+  default = "example/atlas"
+}
+
+variable "atlas_token" {
+}

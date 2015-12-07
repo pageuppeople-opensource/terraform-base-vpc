@@ -1,5 +1,7 @@
-Public subnets, Bastion & Consul cluster on AWS using Terraform
+AWS VPC, Bastion & Consul cluster using Terraform
 =============
+
+Builds an AWS VPC, with public and private subnets.
 
 ## Requirements
 

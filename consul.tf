@@ -61,6 +61,7 @@ resource "aws_security_group" "consul_agent" {
   }
 }
 
+# TODO USE AUTOSCALING WITH FIXED NUMBER OF NODES
 module "consul_servers_a" {
   source = "./consul_server"
 
@@ -71,13 +72,17 @@ module "consul_servers_a" {
   ami = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
   subnet_id = "${aws_subnet.public_a.id}"
-  num_nodes = "${var.consul_subnet_a_num_nodes}"
-  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   stream_tag = "${var.stream_tag}"
   role_tag = "${var.consul_role_tag}"
   costcenter_tag = "${var.costcenter_tag}"
   environment_tag = "${var.environment_tag}"
+  num_nodes = "${var.consul_subnet_a_num_nodes}"
+  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
+  dns_server = "${var.dns_server}"
+  consul_dc = "${var.consul_dc}"
+  atlas = "${var.atlas}"
+  atlas_token = "${var.atlas_token}"
 }
 
 module "consul_servers_b" {
@@ -90,13 +95,17 @@ module "consul_servers_b" {
   ami = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
   subnet_id = "${aws_subnet.public_b.id}"
-  num_nodes = "${var.consul_subnet_b_num_nodes}"
-  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   stream_tag = "${var.stream_tag}"
   role_tag = "${var.consul_role_tag}"
   costcenter_tag = "${var.costcenter_tag}"
   environment_tag = "${var.environment_tag}"
+  num_nodes = "${var.consul_subnet_b_num_nodes}"
+  total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"
+  dns_server = "${var.dns_server}"
+  consul_dc = "${var.consul_dc}"
+  atlas = "${var.atlas}"
+  atlas_token = "${var.atlas_token}"
 }
 
 resource "aws_security_group" "consul_elb" {
