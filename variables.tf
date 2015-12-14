@@ -191,6 +191,10 @@ variable "consul_amis" {
   }
 }
 
+variable "consul_availability_zones"{
+  description="availability zones, consul only at present"
+}
+
 variable "instances" {
   description = "Number of servers"
   default = "3"

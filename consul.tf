@@ -122,7 +122,7 @@ resource "template_file" "user_data" {
 
 resource "aws_launch_configuration" "consul" {
   image_id = "${lookup(var.consul_amis, var.aws_region)}"
-  instance_type = "${var.instance_type}"
+  instance_type = "${var.consul_instance_type}"
   /*security_groups = ["${split(",", replace(concat(aws_security_group.consul_server.id, ",", var.additional_security_groups), "/,\s?$/", ""))}"]*/
   security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"
   associate_public_ip_address = false
@@ -137,7 +137,7 @@ resource "aws_launch_configuration" "consul" {
 }
 
 resource "aws_autoscaling_group" "consul" {
-  availability_zones = ["${split(",", var.availability_zones)}"]
+  availability_zones = ["${split(",", var.consul_availability_zones)}"]
   name = "consul-asg-${var.vpc_name}"
   max_size = "${var.instances}"
   min_size = "${var.instances}"
@@ -145,7 +145,7 @@ resource "aws_autoscaling_group" "consul" {
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
-  vpc_zone_identifier = ["${aws_subnet.subnet_a.id}, ${aws_subnet.subnet_b.id}"]
+  vpc_zone_identifier = ["${aws_subnet.public_a.id}, ${aws_subnet.public_b.id}"]
 
   tag {
     key = "Name"
@@ -238,7 +238,6 @@ resource "aws_elb" "consul" {
     interval = 30
   }
 
-  /*instances = ["${split(",", module.consul_servers_a.ids)}", "${split(",", module.consul_servers_b.ids)}"]*/
   cross_zone_load_balancing = true
   idle_timeout = 400
   connection_draining = true
@@ -254,26 +253,6 @@ resource "aws_elb" "consul" {
 ##############################################################################
 # Route 53
 ##############################################################################
-
-resource "aws_route53_record" "consul_private" {
-  zone_id = "${aws_route53_zone.private_zone.id}"
-  name = "consul"
-  type = "A"
-  ttl = "30"
-  records = ["${split(",", module.consul_servers_a.private-ips)}", "${split(",", module.consul_servers_b.private-ips)}"]
-}
-
-resource "aws_route53_record" "consul_elb_private" {
-  zone_id = "${aws_route53_zone.private_zone.zone_id}"
-  name = "private.consul"
-  type = "A"
-
-  alias {
-    name = "${aws_elb.consul.dns_name}"
-    zone_id = "${aws_elb.consul.zone_id}"
-    evaluate_target_health = true
-  }
-}
 
 resource "aws_route53_record" "consul_public" {
   zone_id = "${var.public_hosted_zone_id}"
