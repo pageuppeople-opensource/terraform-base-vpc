@@ -191,13 +191,20 @@ variable "consul_amis" {
   }
 }
 
+variable "instances" {
+  description = "Number of servers"
+  default = "3"
+}
+
 # number of nodes in zone a
+#DEPRECATED
 variable "consul_subnet_a_num_nodes" {
   description = "Consul server nodes in a"
   default = "2"
 }
 
 # number of nodes in zone b
+#DEPRECATED
 variable "consul_subnet_b_num_nodes" {
   description = "Consul server nodes in b"
   default = "1"

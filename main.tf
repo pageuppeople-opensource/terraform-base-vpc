@@ -110,7 +110,8 @@ resource "aws_route_table_association" "public_b" {
 ##############################################################################
 
 resource "aws_security_group" "nat" {
-  name = "${var.vpc_name} nat"
+  #name = "${var.vpc_name} nat" forces new resource
+  name = "NAT"
   description = "NAT security group"
   vpc_id = "${aws_vpc.default.id}"
 
