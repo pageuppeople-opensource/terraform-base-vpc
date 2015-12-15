@@ -7,5 +7,5 @@ output "bastion server public ip b"{
 }
 
 output "consul launch_configuration" {
-  value = "${aws_autoscaling_group.eventstore.launch_configuration}"
+  value = "${aws_autoscaling_group.consul.launch_configuration}"
 }
