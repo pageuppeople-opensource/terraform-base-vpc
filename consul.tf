@@ -126,7 +126,7 @@ resource "template_file" "user_data" {
 resource "aws_launch_configuration" "consul" {
   image_id = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
-  security_groups = ["${split(",", replace(concat(aws_security_group.consul_server.id, ",", var.additional_security_groups), "/,\\s?$/", ""))}"]
+  security_groups = ["${split(",", replace(concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups), "/,\\s?$/", ""))}"]
   associate_public_ip_address = false
   ebs_optimized = false
   key_name = "${var.private_key_name}"
