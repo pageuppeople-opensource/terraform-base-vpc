@@ -1,7 +1,6 @@
 ### MANDATORY ###
 variable "private_hosted_zone_name" {}
 variable "public_hosted_zone_id" {}
-/*variable "public_hosted_zone_name" {}*/
 
 variable "vpc_name" {
   description = "the name of the vpc"
@@ -56,8 +55,13 @@ variable "bastion_key_name" {
 }
 
 variable "public_key_name" {
-  description = "Name of the SSH keypair to use in AWS."
+  description = "Name of the public SSH keypair to use in AWS."
   default = "public"
+}
+
+variable "private_key_name" {
+  description = "Name of the private SSH keypair to use in AWS."
+  default = "private"
 }
 
 variable "aws_region" {
