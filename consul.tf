@@ -118,6 +118,9 @@ resource "template_file" "user_data" {
     atlas       = "${var.atlas}"
     atlas_token = "${var.atlas_token}"
   }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_launch_configuration" "consul" {
