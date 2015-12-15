@@ -2,7 +2,7 @@
 # Consul servers
 ##############################################################################
 resource "aws_security_group" "consul_server" {
-  name = "${var.consul_security_group_name}"
+  name = "${var.consul_security_group_name} consul server"
   description = "Consul server, UI and maintenance."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -36,7 +36,7 @@ resource "aws_security_group" "consul_server" {
 }
 
 resource "aws_security_group" "consul_agent" {
-  name = "consul agent"
+  name = "${var.consul_security_group_name} consul agent"
   description = "Consul agents internal traffic."
   vpc_id = "${aws_vpc.default.id}"
 
