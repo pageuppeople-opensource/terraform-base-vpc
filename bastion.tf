@@ -60,7 +60,7 @@ module "bastion_server_b" {
 }
 
 resource "aws_route53_record" "bastion" {
-   zone_id = "${var.public_hosted_zone_id}"
+   zone_id = "${var.bastion_public_hosted_zone_id}"
    name = "${var.bastion_public_hosted_zone_name}"
    type = "A"
    ttl = "300"

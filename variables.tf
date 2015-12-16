@@ -1,6 +1,5 @@
 ### MANDATORY ###
 variable "private_hosted_zone_name" {}
-variable "public_hosted_zone_id" {}
 
 variable "vpc_name" {
   description = "the name of the vpc"
@@ -49,6 +48,7 @@ variable "aws_parent_vpc_cidr"{
 ###################################################################
 # AWS configuration below
 ###################################################################
+
 variable "bastion_key_name" {
   description = "Name of the SSH keypair to use in AWS."
   default = "bastion"
@@ -134,6 +134,7 @@ variable "nat_role_tag" {
 ###################################################################
 # Bastion configuration below
 ###################################################################
+variable "bastion_public_hosted_zone_id" {}
 variable "bastion_public_hosted_zone_name" {}
 
 variable "bastion_role_tag" {
@@ -174,6 +175,7 @@ variable "bastion_num_nodes_subnet_b" {
 ###################################################################
 # Consul configuration below
 ###################################################################
+variable "consul_public_hosted_zone_id" {}
 variable "consul_public_hosted_zone_name" {}
 
 variable "consul_role_tag" {

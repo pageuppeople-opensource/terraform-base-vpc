@@ -66,7 +66,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "public route table"
+    Name = "${var.vpc_name} public route table"
     Stream = "${var.stream_tag}"
   }
 }

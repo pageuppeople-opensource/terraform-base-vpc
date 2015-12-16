@@ -2,7 +2,7 @@
 # Consul servers
 ##############################################################################
 resource "aws_security_group" "consul_server" {
-  name = "${var.consul_security_group_name} consul server"
+  name = "${var.environment} consul server"
   description = "Consul server, UI and maintenance."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -30,13 +30,13 @@ resource "aws_security_group" "consul_server" {
   }
 
   tags {
-    Name = "consul server security group ${var.environment}"
+    Name = "${var.environment} consul server security group"
     stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_security_group" "consul_agent" {
-  name = "${var.consul_security_group_name} consul agent"
+  name = "${var.environment} consul agent"
   description = "Consul agents internal traffic."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -56,57 +56,10 @@ resource "aws_security_group" "consul_agent" {
   }
 
   tags {
-    Name = "consul agent security group ${var.environment}"
+    Name = "${var.environment} consul agent security group"
     stream = "${var.stream_tag}"
   }
 }
-
-# TODO USE AUTOSCALING WITH FIXED NUMBER OF NODES
-/*module "consul_servers_a" {*/
-  /*source = "./consul_server"*/
-
-  /*name = "consul_server_${var.environment}-a"*/
-  /*environment = "${var.environment}"*/
-  /*region = "${var.aws_region}"*/
-  /*key_name = "${var.public_key_name}"*/
-  /*ami = "${lookup(var.consul_amis, var.aws_region)}"*/
-  /*instance_type = "${var.consul_instance_type}"*/
-  /*subnet_id = "${aws_subnet.public_a.id}"*/
-  /*security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"*/
-  /*stream_tag = "${var.stream_tag}"*/
-  /*role_tag = "${var.consul_role_tag}"*/
-  /*costcenter_tag = "${var.costcenter_tag}"*/
-  /*environment_tag = "${var.environment_tag}"*/
-  /*num_nodes = "${var.consul_subnet_a_num_nodes}"*/
-  /*total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"*/
-  /*dns_server = "${var.dns_server}"*/
-  /*consul_dc = "${var.consul_dc}"*/
-  /*atlas = "${var.atlas}"*/
-  /*atlas_token = "${var.atlas_token}"*/
-/*}*/
-
-/*module "consul_servers_b" {*/
-  /*source = "./consul_server"*/
-
-  /*name = "consul_server_${var.environment}-b"*/
-  /*environment = "${var.environment}"*/
-  /*region = "${var.aws_region}"*/
-  /*key_name = "${var.public_key_name}"*/
-  /*ami = "${lookup(var.consul_amis, var.aws_region)}"*/
-  /*instance_type = "${var.consul_instance_type}"*/
-  /*subnet_id = "${aws_subnet.public_b.id}"*/
-  /*security_groups = "${concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups)}"*/
-  /*stream_tag = "${var.stream_tag}"*/
-  /*role_tag = "${var.consul_role_tag}"*/
-  /*costcenter_tag = "${var.costcenter_tag}"*/
-  /*environment_tag = "${var.environment_tag}"*/
-  /*num_nodes = "${var.consul_subnet_b_num_nodes}"*/
-  /*total_nodes = "${var.consul_subnet_a_num_nodes + var.consul_subnet_b_num_nodes}"*/
-  /*dns_server = "${var.dns_server}"*/
-  /*consul_dc = "${var.consul_dc}"*/
-  /*atlas = "${var.atlas}"*/
-  /*atlas_token = "${var.atlas_token}"*/
-/*}*/
 
 resource "template_file" "user_data" {
   template = "consul_server/templates/user-data.tpl"
@@ -130,6 +83,7 @@ resource "aws_launch_configuration" "consul" {
   associate_public_ip_address = false
   ebs_optimized = false
   key_name = "${var.private_key_name}"
+  # TODO
   /*iam_instance_profile = "${aws_iam_instance_profile.consul.id}"*/
   user_data = "${template_file.user_data.rendered}"
 
@@ -147,7 +101,8 @@ resource "aws_autoscaling_group" "consul" {
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
-  vpc_zone_identifier = ["${aws_subnet.private_a.id}, ${aws_subnet.private_b.id}"]
+  # assuming here we create two subnets
+  vpc_zone_identifier = ["${aws_subnet.private_a.id}", "${aws_subnet.private_b.id}"]
 
   tag {
     key = "Name"
@@ -257,7 +212,7 @@ resource "aws_elb" "consul" {
 ##############################################################################
 
 resource "aws_route53_record" "consul_public" {
-  zone_id = "${var.public_hosted_zone_id}"
+  zone_id = "${var.consul_public_hosted_zone_id}"
   name = "${var.consul_public_hosted_zone_name}"
   type = "A"
 
