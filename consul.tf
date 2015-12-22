@@ -2,7 +2,7 @@
 # Consul servers
 ##############################################################################
 resource "aws_security_group" "consul_server" {
-  name = "${var.environment} consul server"
+  name = "${var.vpc_name}-consul-server"
   description = "Consul server, UI and maintenance."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -30,13 +30,13 @@ resource "aws_security_group" "consul_server" {
   }
 
   tags {
-    Name = "${var.environment} consul server security group"
+    Name = "${var.vpc_name}-consul-server"
     stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_security_group" "consul_agent" {
-  name = "${var.environment} consul agent"
+  name = "${var.vpc_name}-consul-agent"
   description = "Consul agents internal traffic."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -56,7 +56,7 @@ resource "aws_security_group" "consul_agent" {
   }
 
   tags {
-    Name = "${var.environment} consul agent security group"
+    Name = "${var.vpc_name}-consul-agent"
     stream = "${var.stream_tag}"
   }
 }
@@ -136,7 +136,7 @@ resource "aws_autoscaling_group" "consul" {
 }
 
 resource "aws_security_group" "consul_elb" {
-  name = "consul elb"
+  name = "${var.vpc_name}-consul-elb"
   description = "http and https ports mapped to consul"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -162,13 +162,13 @@ resource "aws_security_group" "consul_elb" {
   }
 
   tags {
-    Name = "consul elb security group"
+    Name = "${var.vpc_name}-consul-elb"
     stream = "${var.stream_tag}"
   }
 }
 
 resource "aws_elb" "consul" {
-  name = "${var.environment}-consul-elb"
+  name = "${var.vpc_name}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
   subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 

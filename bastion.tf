@@ -3,7 +3,7 @@
 ##############################################################################
 
 resource "aws_security_group" "bastion" {
-  name = "${var.bastion_security_group_name}"
+  name = "${var.vpc_name}-bastion"
   description = "Allow access from allowed_network via SSH"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -24,7 +24,7 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    Name = "bastion security group ${var.environment}"
+    Name = "${var.vpc_name}-bastion"
     stream = "${var.stream_tag}"
   }
 }
@@ -32,7 +32,7 @@ resource "aws_security_group" "bastion" {
 module "bastion_server_a" {
   source = "./bastion"
 
-  name = "bastion_server_${var.environment}-a"
+  name = "${var.vpc_name}-bastion-a"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"
@@ -47,7 +47,7 @@ module "bastion_server_a" {
 module "bastion_server_b" {
   source = "./bastion"
 
-  name = "bastion_server_${var.environment}-b"
+  name = "${var.vpc_name}-bastion-b"
   key_name = "${var.bastion_key_name}"
   ami = "${lookup(var.bastion_amis, var.aws_region)}"
   security_groups = "${aws_security_group.bastion.id}"

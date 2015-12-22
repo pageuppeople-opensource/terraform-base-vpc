@@ -12,7 +12,7 @@ resource "aws_vpc" "default" {
   enable_dns_hostnames = "true"
 
   tags {
-    Name = "${var.vpc_name} VPC"
+    Name = "${var.vpc_name}"
   }
 }
 
@@ -49,7 +49,7 @@ resource "aws_vpc_peering_connection" "vpc_to_parent" {
   auto_accept = true
 
   tags {
-    Name = "${var.vpc_name} to parent peering"
+    Name = "${var.vpc_name}-parent-peering"
     stream = "${var.stream_tag}"
   }
 }
@@ -66,7 +66,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "${var.vpc_name} public route table"
+    Name = "${var.vpc_name}-public-route-table"
     Stream = "${var.stream_tag}"
   }
 }
@@ -110,8 +110,7 @@ resource "aws_route_table_association" "public_b" {
 ##############################################################################
 
 resource "aws_security_group" "nat" {
-  #name = "${var.vpc_name} nat" forces new resource
-  name = "NAT"
+  name = "${var.vpc_name}-nat"
   description = "NAT security group"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -130,7 +129,7 @@ resource "aws_security_group" "nat" {
   }
 
   tags {
-    Name = "${var.vpc_name} NAT security group"
+    Name = "${var.vpc_name}-nat"
     stream = "${var.stream_tag}"
   }
 }
@@ -152,7 +151,7 @@ resource "aws_instance" "nat_a" {
   source_dest_check = false
 
   tags {
-    Name = "NAT_${var.vpc_name}-a"
+    Name = "${var.vpc_name}-nat-a"
     stream = "${var.stream_tag}"
     role_tag = "${var.nat_role_tag}"
     costcenter_tag = "${var.costcenter_tag}"
@@ -177,7 +176,7 @@ resource "aws_instance" "nat_b" {
   source_dest_check = false
 
   tags {
-    Name = "NAT_${var.vpc_name}-b"
+    Name = "${var.vpc_name}-nat-b"
     stream = "${var.stream_tag}"
     role_tag = "${var.nat_role_tag}"
     costcenter_tag = "${var.costcenter_tag}"
