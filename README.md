@@ -19,21 +19,22 @@ Create a configuration file such as `~/.aws/default.tfvars` which can include ma
 
 NOTE: this is currently not complete
 ```
-aws_access_key="<your aws access key>"
-aws_secret_key="<your aws access secret>"
-key_name="<your private key name>"
-key_name="<key name>"
+bastion_key_name="<your bastion key name>"
+public_key_name="<your public key name>"
+private_key_name="<your private key name>"
 
 stream_tag="<used for aws resource groups>"
 
 aws_region="ap-southeast-2"
-aws_bastion_amis.ap-southeast-2="ami-7ff38945"
+bastion_amis.ap-southeast-2="ami-7ff38945"
 
 # internal hosted zone
-hosted_zone_name="<some.internal>"
+private_hosted_zone_name="<some.internal>"
 ```
 
-You can also modify the `variables.tf` file, replacing correct values for `aws_amis` for your region:
+See `variables.tf` for more details.
+
+Modification of the `variables.tf` file can be done like:
 
 ```
 variable "bastion_amis" {
@@ -46,7 +47,7 @@ variable "bastion_amis" {
 These variables can also be overriden when running terraform like so:
 
 ```
-terraform (plan|apply|destroy) -var 'aws_bastion_amis.ap-southeast-2=foozie'
+terraform (plan|apply|destroy) -var 'bastion_amis.ap-southeast-2=foozie'
 ```
 
 The variables.tf terraform file can be further modified, for example it defaults to `ap-southeast-2` for the AWS region.
