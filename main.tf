@@ -121,6 +121,27 @@ resource "aws_security_group" "nat" {
     cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
   }
 
+  ingress {
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
+    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
+  }
+
+  ingress {
+    from_port = 53
+    to_port = 53
+    protocol = "udp"
+    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
+  }
+
+  ingress {
+    from_port = -1
+    to_port = -1
+    protocol = "icmp"
+    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
+  }
+
   egress {
     from_port = 0
     to_port = 0
