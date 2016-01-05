@@ -22,8 +22,8 @@ sudo echo "export CONSUL_FLAGS=\"-server -bootstrap-expect=${num_nodes}\"" > /et
 cat <<'EOF' >/tmp/upstart
 description "Consul server"
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+start on (runlevel [2345] and started network)
+stop on (runlevel [!2345] and stopping network)
 
 respawn
 
