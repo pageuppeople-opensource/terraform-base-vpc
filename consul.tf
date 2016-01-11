@@ -33,6 +33,10 @@ resource "aws_security_group" "consul_server" {
     Name = "${var.vpc_name}-consul-server"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group" "consul_agent" {
@@ -59,6 +63,10 @@ resource "aws_security_group" "consul_agent" {
     Name = "${var.vpc_name}-consul-agent"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "template_file" "user_data" {
@@ -71,6 +79,7 @@ resource "template_file" "user_data" {
     atlas       = "${var.atlas}"
     atlas_token = "${var.atlas_token}"
   }
+
   lifecycle {
     create_before_destroy = true
   }
@@ -86,6 +95,10 @@ resource "aws_launch_configuration" "consul" {
   # TODO
   /*iam_instance_profile = "${aws_iam_instance_profile.consul.id}"*/
   user_data = "${template_file.user_data.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -130,6 +143,7 @@ resource "aws_autoscaling_group" "consul" {
     propagate_at_launch = true
   }
   load_balancers = ["${aws_elb.consul.name}"]
+
   lifecycle {
     create_before_destroy = true
   }
@@ -164,6 +178,10 @@ resource "aws_security_group" "consul_elb" {
   tags {
     Name = "${var.vpc_name}-consul-elb"
     stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -205,6 +223,10 @@ resource "aws_elb" "consul" {
     Name = "consul elb"
     Stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ##############################################################################
@@ -214,6 +236,18 @@ resource "aws_elb" "consul" {
 resource "aws_route53_record" "consul_public" {
   zone_id = "${var.consul_public_hosted_zone_id}"
   name = "${var.consul_public_hosted_zone_name}"
+  type = "A"
+
+  alias {
+    name = "${aws_elb.consul.dns_name}"
+    zone_id = "${aws_elb.consul.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "consul_private" {
+  zone_id = "${aws_route53_zone.private_zone.id}"
+  name = "private.consul"
   type = "A"
 
   alias {

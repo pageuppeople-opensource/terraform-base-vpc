@@ -14,6 +14,10 @@ resource "aws_vpc" "default" {
   tags {
     Name = "${var.vpc_name}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_internet_gateway" "default" {
@@ -81,6 +85,10 @@ resource "aws_subnet" "public_a" {
     Name = "${var.vpc_name}PublicA"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "public_b" {
@@ -92,6 +100,10 @@ resource "aws_subnet" "public_b" {
   tags {
     Name = "${var.vpc_name}PublicB"
     stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -226,6 +238,7 @@ resource "aws_route_table" "private_a" {
     Name = "${var.vpc_name} private route table a"
     stream = "${var.stream_tag}"
   }
+
 }
 
 resource "aws_route_table" "private_b" {
@@ -245,6 +258,7 @@ resource "aws_route_table" "private_b" {
     Name = "${var.vpc_name} private route table b"
     stream = "${var.stream_tag}"
   }
+
 }
 
 resource "aws_subnet" "private_a" {
@@ -256,6 +270,10 @@ resource "aws_subnet" "private_a" {
     Name = "${var.vpc_name}PrivateA"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "private_b" {
@@ -266,6 +284,10 @@ resource "aws_subnet" "private_b" {
   tags {
     Name = "${var.vpc_name}PrivateB"
     stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
