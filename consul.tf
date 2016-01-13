@@ -142,7 +142,7 @@ resource "aws_autoscaling_group" "consul" {
     value = "${var.environment_tag}"
     propagate_at_launch = true
   }
-  load_balancers = ["${aws_elb.consul.name}"]
+  load_balancers = ["${aws_elb.consul.name}", "${aws_elb.consul_internal.name}"]
 
   lifecycle {
     create_before_destroy = true
@@ -172,7 +172,7 @@ resource "aws_security_group" "consul_elb" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${split(",", var.external_cidr_blocks)}"]
   }
 
   tags {
@@ -229,6 +229,71 @@ resource "aws_elb" "consul" {
   }
 }
 
+resource "aws_security_group" "consul_internal_elb" {
+  name = "${var.vpc_name}-consul-internal-elb"
+  description = "internal consul elb"
+  vpc_id = "${aws_vpc.default.id}"
+
+  ingress {
+    from_port = 8500
+    to_port = 8500
+    protocol = "tcp"
+    cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
+  }
+
+  tags {
+    Name = "${var.vpc_name}-consul-internal-elb"
+    stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_elb" "consul_internal" {
+  name = "${var.vpc_name}-consul-internal-elb"
+  security_groups = ["${aws_security_group.consul_internal_elb.id}"]
+  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+
+  listener {
+    instance_port = 8500
+    instance_protocol = "http"
+    lb_port = 8500
+    lb_protocol = "http"
+  }
+
+  health_check {
+    healthy_threshold = "${var.instances}"
+    unhealthy_threshold = "${var.instances}"
+    timeout = 10
+    target = "TCP:8500"
+    interval = 30
+  }
+
+  cross_zone_load_balancing = true
+  idle_timeout = 400
+  connection_draining = true
+  connection_draining_timeout = 400
+  internal = true
+
+  tags {
+    Name = "consul internal elb"
+    Stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 ##############################################################################
 # Route 53
 ##############################################################################
@@ -251,8 +316,8 @@ resource "aws_route53_record" "consul_private" {
   type = "A"
 
   alias {
-    name = "${aws_elb.consul.dns_name}"
-    zone_id = "${aws_elb.consul.zone_id}"
+    name = "${aws_elb.consul_internal.dns_name}"
+    zone_id = "${aws_elb.consul_internal.zone_id}"
     evaluate_target_health = true
   }
 }

@@ -26,6 +26,10 @@ resource "aws_internet_gateway" "default" {
   tags {
     Name = "${var.vpc_name} internet gateway"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_vpc_dhcp_options" "default" {
@@ -121,6 +125,7 @@ resource "aws_route_table_association" "public_b" {
 # NAT Boxes
 ##############################################################################
 
+# REPLACE WITH NAT AS A SERVICE WHEN TERRAFORM SUPPORTS IT
 resource "aws_security_group" "nat" {
   name = "${var.vpc_name}-nat"
   description = "NAT security group"
@@ -235,10 +240,13 @@ resource "aws_route_table" "private_a" {
   }
 
   tags {
-    Name = "${var.vpc_name} private route table a"
+    Name = "${var.vpc_name}-private-route-table-a"
     stream = "${var.stream_tag}"
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route_table" "private_b" {
@@ -255,10 +263,13 @@ resource "aws_route_table" "private_b" {
   }
 
   tags {
-    Name = "${var.vpc_name} private route table b"
+    Name = "${var.vpc_name}-private-route-table-b"
     stream = "${var.stream_tag}"
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "private_a" {
