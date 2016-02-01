@@ -125,6 +125,28 @@ resource "aws_route_table_association" "public_b" {
 # NAT Boxes
 ##############################################################################
 
+resource "aws_eip" "nat_a" {
+    vpc = true
+}
+
+resource "aws_nat_gateway" "nat_a" {
+    allocation_id = "${aws_eip.nat_a.id}"
+    subnet_id = "${aws_subnet.public_a.id}"
+
+    depends_on = ["aws_internet_gateway.default"]
+}
+
+resource "aws_eip" "nat_b" {
+    vpc = true
+}
+
+resource "aws_nat_gateway" "nat_b" {
+    allocation_id = "${aws_eip.nat_b.id}"
+    subnet_id = "${aws_subnet.public_b.id}"
+
+    depends_on = ["aws_internet_gateway.default"]
+}
+
 # REPLACE WITH NAT AS A SERVICE WHEN TERRAFORM SUPPORTS IT
 resource "aws_security_group" "nat" {
   name = "${var.vpc_name}-nat"
@@ -172,56 +194,6 @@ resource "aws_security_group" "nat" {
   }
 }
 
-# module plz
-resource "aws_instance" "nat_a" {
-
-  # configurable plz
-  instance_type = "t2.micro"
-
-  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
-
-  subnet_id = "${aws_subnet.public_a.id}"
-  associate_public_ip_address = "true"
-  security_groups = ["${aws_security_group.nat.id}"]
-  key_name = "${var.public_key_name}"
-  count = "1"
-
-  source_dest_check = false
-
-  tags {
-    Name = "${var.vpc_name}-nat-a"
-    stream = "${var.stream_tag}"
-    role_tag = "${var.nat_role_tag}"
-    costcenter_tag = "${var.costcenter_tag}"
-    environment_tag = "${var.environment_tag}"
-  }
-}
-
-# module plz
-resource "aws_instance" "nat_b" {
-
-  # configurable plz
-  instance_type = "t2.micro"
-
-  ami = "${lookup(var.amazon_nat_ami, var.aws_region)}"
-
-  subnet_id = "${aws_subnet.public_a.id}"
-  associate_public_ip_address = "true"
-  security_groups = ["${aws_security_group.nat.id}"]
-  key_name = "${var.public_key_name}"
-  count = "1"
-
-  source_dest_check = false
-
-  tags {
-    Name = "${var.vpc_name}-nat-b"
-    stream = "${var.stream_tag}"
-    role_tag = "${var.nat_role_tag}"
-    costcenter_tag = "${var.costcenter_tag}"
-    environment_tag = "${var.environment_tag}"
-  }
-}
-
 ##############################################################################
 # Private subnets
 ##############################################################################
@@ -236,7 +208,7 @@ resource "aws_route_table" "private_a" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    instance_id = "${aws_instance.nat_a.id}"
+    instance_id = "${aws_nat_gateway.nat_a.id}"
   }
 
   tags {
@@ -259,7 +231,7 @@ resource "aws_route_table" "private_b" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    instance_id = "${aws_instance.nat_b.id}"
+    instance_id = "${aws_nat_gateway.nat_b.id}"
   }
 
   tags {

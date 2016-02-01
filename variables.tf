@@ -124,7 +124,7 @@ variable "amazon_nat_ami" {
     ap-southeast-1 = "ami-b49dace6"
     ap-southeast-2 = "ami-e7ee9edd"
     us-west-1 = "ami-7da94839"
-    eu-west-1 = "ami-bff32ccc"
+    eu-west-1 = "ami-c0993ab3"
   }
 }
 
