@@ -11,6 +11,7 @@ cat <<EOF >/tmp/consul.json
     "disable_anonymous_signature" : true,
     "disable_update_check"        : true,
     "data_dir"                    : "/mnt/consul/data",
+    "leave_on_terminate"          : true,
     "ui_dir"                      : "/mnt/consul/ui"
 }
 EOF
@@ -37,11 +38,13 @@ script
 
   # Get the IP
   BIND=`ifconfig eth0 | grep "inet addr" | awk '{ print substr($2,6) }'`
+  ADVERTISE=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
 
   exec /usr/local/bin/consul agent \
     $${CONSUL_FLAGS} \
     -config-dir="/etc/consul.d" \
     -bind=$${BIND} \
+    -advertise-wan=$${ADVERTISE} \
     -data-dir="/mnt/consul/data/" \
     -node="consul-$${BIND}" \
     -dc="${consul_dc}" \

@@ -11,7 +11,7 @@ resource "aws_security_group" "consul_server" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
   }
 
   // consul ui
@@ -19,6 +19,20 @@ resource "aws_security_group" "consul_server" {
     from_port = 8500
     to_port = 8500
     protocol = "tcp"
+    cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
+  }
+
+  ingress {
+    from_port = 8302
+    to_port = 8302
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8302
+    to_port = 8302
+    protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -86,12 +100,13 @@ resource "template_file" "user_data" {
 }
 
 resource "aws_launch_configuration" "consul" {
+  name_prefix = "${var.vpc_name}-consul-lc-"
   image_id = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
   security_groups = ["${split(",", replace(concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups), "/,\\s?$/", ""))}"]
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   ebs_optimized = false
-  key_name = "${var.private_key_name}"
+  key_name = "${var.public_key_name}"
   # TODO
   /*iam_instance_profile = "${aws_iam_instance_profile.consul.id}"*/
   user_data = "${template_file.user_data.rendered}"
@@ -107,7 +122,6 @@ resource "aws_launch_configuration" "consul" {
 
 resource "aws_autoscaling_group" "consul" {
   availability_zones = ["${split(",", var.consul_availability_zones)}"]
-  name = "consul-asg-${var.vpc_name}"
   max_size = "${var.instances}"
   min_size = "${var.instances}"
   desired_capacity = "${var.instances}"
@@ -115,7 +129,7 @@ resource "aws_autoscaling_group" "consul" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
   # assuming here we create two subnets
-  vpc_zone_identifier = ["${aws_subnet.private_a.id}", "${aws_subnet.private_b.id}"]
+  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 
   tag {
     key = "Name"
