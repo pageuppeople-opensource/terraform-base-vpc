@@ -6,7 +6,6 @@ resource "aws_security_group" "consul_server" {
   description = "Consul server, UI and maintenance."
   vpc_id = "${aws_vpc.default.id}"
 
-  // These are for maintenance
   ingress {
     from_port = 22
     to_port = 22
@@ -14,12 +13,18 @@ resource "aws_security_group" "consul_server" {
     cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
   }
 
-  // consul ui
   ingress {
     from_port = 8500
     to_port = 8500
     protocol = "tcp"
     cidr_blocks = ["${split(",", var.internal_cidr_blocks)}"]
+  }
+
+  ingress {
+    from_port = 8300
+    to_port = 8300
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {

@@ -147,7 +147,6 @@ resource "aws_nat_gateway" "nat_b" {
     depends_on = ["aws_internet_gateway.default"]
 }
 
-# REPLACE WITH NAT AS A SERVICE WHEN TERRAFORM SUPPORTS IT
 resource "aws_security_group" "nat" {
   name = "${var.vpc_name}-nat"
   description = "NAT security group"
