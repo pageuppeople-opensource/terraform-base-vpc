@@ -89,7 +89,7 @@ resource "aws_security_group" "consul_agent" {
 }
 
 resource "template_file" "user_data" {
-  template = "consul_server/templates/user-data.tpl"
+  template = "${file("${path.root}/consul_server/templates/user-data.tpl")}"
 
   vars {
     dns_server  = "${var.dns_server}"
