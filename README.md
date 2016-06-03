@@ -5,7 +5,7 @@ Builds an AWS VPC, with public and private subnets.
 
 ## Requirements
 
-* Terraform >= v0.5.1
+* Terraform >= v0.6.12
 
 ## Installation
 
@@ -17,14 +17,7 @@ Builds an AWS VPC, with public and private subnets.
 
 Create a configuration file such as `~/.aws/default.tfvars` which can include mandatory and optional variables such as:
 
-NOTE: this is currently not complete
 ```
-bastion_key_name="<your bastion key name>"
-public_key_name="<your public key name>"
-private_key_name="<your private key name>"
-
-stream_tag="<used for aws resource groups>"
-
 aws_region="ap-southeast-2"
 bastion_amis.ap-southeast-2="ami-7ff38945"
 
@@ -32,19 +25,9 @@ bastion_amis.ap-southeast-2="ami-7ff38945"
 private_hosted_zone_name="<some.internal>"
 ```
 
-See `variables.tf` for more details.
+See `variables.tf` for more details on variables that can be used.
 
-Modification of the `variables.tf` file can be done like:
-
-```
-variable "bastion_amis" {
-  default = {
-		ap-southeast-2 = "ami-xxxxxxx"
-  }
-}
-```
-
-These variables can also be overriden when running terraform like so:
+Variables can also be overriden when running:
 
 ```
 terraform (plan|apply|destroy) -var 'bastion_amis.ap-southeast-2=foozie'
@@ -66,6 +49,3 @@ If all looks good, lets build our infrastructure!
 terraform apply -var-file ~/.aws/default.tfvars -state='environment/development.tfstate'
 ```
 
-## TODO
-
-* Finish This README
