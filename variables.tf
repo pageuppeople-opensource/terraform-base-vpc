@@ -107,11 +107,19 @@ variable "public_subnet_cidr_b"{
 }
 
 ### MANDATORY ###
+variable "public_subnet_cidr_c"{
+}
+
+### MANDATORY ###
 variable "private_subnet_cidr_a"{
 }
 
 ### MANDATORY ###
 variable "private_subnet_cidr_b"{
+}
+
+### MANDATORY ###
+variable "private_subnet_cidr_c"{
 }
 
 ###################################################################
@@ -156,8 +164,8 @@ variable "bastion_amis" {
     eu-central-1 = "ami-46073a5b"
     ap-southeast-1 = "ami-b49dace6"
     ap-southeast-2 = "ami-e7ee9edd"
+    eu-west-1 = "ami-b0ac25c3"
     us-west-1 = "ami-7da94839"
-    eu-west-1 = "ami-69b9941e"
   }
 }
 
@@ -170,6 +178,12 @@ variable "bastion_num_nodes_subnet_a" {
 # number of nodes in zone b
 variable "bastion_num_nodes_subnet_b" {
   description = "Bastion server nodes in b"
+  default = "1"
+}
+
+# number of nodes in zone b
+variable "bastion_num_nodes_subnet_c" {
+  description = "Bastion server nodes in c"
   default = "1"
 }
 
@@ -202,23 +216,9 @@ variable "consul_availability_zones"{
   description="availability zones, consul only at present"
 }
 
-variable "instances" {
-  description = "Number of servers"
+variable "consul_instances" {
+  description = "Number of consul servers"
   default = "3"
-}
-
-# number of nodes in zone a
-#DEPRECATED
-variable "consul_subnet_a_num_nodes" {
-  description = "Consul server nodes in a"
-  default = "2"
-}
-
-# number of nodes in zone b
-#DEPRECATED
-variable "consul_subnet_b_num_nodes" {
-  description = "Consul server nodes in b"
-  default = "1"
 }
 
 variable "dns_server" {

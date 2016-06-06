@@ -111,6 +111,22 @@ resource "aws_subnet" "public_b" {
   }
 }
 
+resource "aws_subnet" "public_c" {
+  vpc_id = "${aws_vpc.default.id}"
+  availability_zone = "${concat(var.aws_region, "c")}"
+  cidr_block = "${var.public_subnet_cidr_c}"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "${var.vpc_name}PublicC"
+    stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_route_table_association" "public_a" {
   subnet_id = "${aws_subnet.public_a.id}"
   route_table_id = "${aws_route_table.public.id}"
@@ -118,6 +134,11 @@ resource "aws_route_table_association" "public_a" {
 
 resource "aws_route_table_association" "public_b" {
   subnet_id = "${aws_subnet.public_b.id}"
+  route_table_id = "${aws_route_table.public.id}"
+}
+
+resource "aws_route_table_association" "public_c" {
+  subnet_id = "${aws_subnet.public_c.id}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
@@ -143,6 +164,17 @@ resource "aws_eip" "nat_b" {
 resource "aws_nat_gateway" "nat_b" {
     allocation_id = "${aws_eip.nat_b.id}"
     subnet_id = "${aws_subnet.public_b.id}"
+
+    depends_on = ["aws_internet_gateway.default"]
+}
+
+resource "aws_eip" "nat_c" {
+    vpc = true
+}
+
+resource "aws_nat_gateway" "nat_c" {
+    allocation_id = "${aws_eip.nat_c.id}"
+    subnet_id = "${aws_subnet.public_c.id}"
 
     depends_on = ["aws_internet_gateway.default"]
 }
@@ -243,6 +275,29 @@ resource "aws_route_table" "private_b" {
   }
 }
 
+resource "aws_route_table" "private_c" {
+  vpc_id = "${aws_vpc.default.id}"
+
+  route {
+      vpc_peering_connection_id = "${aws_vpc_peering_connection.vpc_to_parent.id}"
+      cidr_block = "${var.aws_parent_vpc_cidr}"
+  }
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.nat_c.id}"
+  }
+
+  tags {
+    Name = "${var.vpc_name}-private-route-table-c"
+    stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_subnet" "private_a" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
@@ -273,6 +328,21 @@ resource "aws_subnet" "private_b" {
   }
 }
 
+resource "aws_subnet" "private_c" {
+  vpc_id = "${aws_vpc.default.id}"
+  availability_zone = "${concat(var.aws_region, "c")}"
+  cidr_block = "${var.private_subnet_cidr_c}"
+
+  tags {
+    Name = "${var.vpc_name}PrivateC"
+    stream = "${var.stream_tag}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_route_table_association" "private_a" {
   subnet_id = "${aws_subnet.private_a.id}"
   route_table_id = "${aws_route_table.private_a.id}"
@@ -281,6 +351,11 @@ resource "aws_route_table_association" "private_a" {
 resource "aws_route_table_association" "private_b" {
   subnet_id = "${aws_subnet.private_b.id}"
   route_table_id = "${aws_route_table.private_b.id}"
+}
+
+resource "aws_route_table_association" "private_c" {
+  subnet_id = "${aws_subnet.private_c.id}"
+  route_table_id = "${aws_route_table.private_c.id}"
 }
 
 ##############################################################################

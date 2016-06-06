@@ -93,7 +93,7 @@ resource "template_file" "user_data" {
 
   vars {
     dns_server  = "${var.dns_server}"
-    num_nodes   = "${var.instances}"
+    num_nodes   = "${var.consul_instances}"
     consul_dc   = "${var.consul_dc}"
     atlas       = "${var.atlas}"
     atlas_token = "${var.atlas_token}"
@@ -127,14 +127,14 @@ resource "aws_launch_configuration" "consul" {
 
 resource "aws_autoscaling_group" "consul" {
   availability_zones = ["${split(",", var.consul_availability_zones)}"]
-  max_size = "${var.instances}"
-  min_size = "${var.instances}"
-  desired_capacity = "${var.instances}"
+  max_size = "${var.consul_instances}"
+  min_size = "${var.consul_instances}"
+  desired_capacity = "${var.consul_instances}"
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
   # assuming here we create two subnets
-  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
 
   tag {
     key = "Name"
@@ -207,7 +207,7 @@ resource "aws_security_group" "consul_elb" {
 resource "aws_elb" "consul" {
   name = "${var.vpc_name}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
 
   listener {
     instance_port = 8500
@@ -225,8 +225,8 @@ resource "aws_elb" "consul" {
   }
 
   health_check {
-    healthy_threshold = "${var.instances}"
-    unhealthy_threshold = "${var.instances}"
+    healthy_threshold = "${var.consul_instances}"
+    unhealthy_threshold = "${var.consul_instances}"
     timeout = 10
     target = "TCP:8500"
     interval = 30
@@ -280,7 +280,7 @@ resource "aws_security_group" "consul_internal_elb" {
 resource "aws_elb" "consul_internal" {
   name = "${var.vpc_name}-consul-internal-elb"
   security_groups = ["${aws_security_group.consul_internal_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
 
   listener {
     instance_port = 8500
@@ -290,8 +290,8 @@ resource "aws_elb" "consul_internal" {
   }
 
   health_check {
-    healthy_threshold = "${var.instances}"
-    unhealthy_threshold = "${var.instances}"
+    healthy_threshold = "${var.consul_instances}"
+    unhealthy_threshold = "${var.consul_instances}"
     timeout = 10
     target = "TCP:8500"
     interval = 30
