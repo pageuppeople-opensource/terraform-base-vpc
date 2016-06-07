@@ -123,24 +123,6 @@ variable "private_subnet_cidr_c"{
 }
 
 ###################################################################
-# NAT configuration below
-###################################################################
-
-variable "amazon_nat_ami" {
-  default = {
-    eu-central-1 = "ami-46073a5b"
-    ap-southeast-1 = "ami-b49dace6"
-    ap-southeast-2 = "ami-e7ee9edd"
-    us-west-1 = "ami-7da94839"
-    eu-west-1 = "ami-c0993ab3"
-  }
-}
-
-variable "nat_role_tag" {
-  default = "NETWORK"
-}
-
-###################################################################
 # Bastion configuration below
 ###################################################################
 variable "bastion_public_hosted_zone_id" {}

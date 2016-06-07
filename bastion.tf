@@ -27,6 +27,10 @@ resource "aws_security_group" "bastion" {
     Name = "${var.vpc_name}-bastion"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 module "bastion_server_a" {

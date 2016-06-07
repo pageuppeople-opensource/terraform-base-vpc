@@ -223,6 +223,10 @@ resource "aws_security_group" "nat" {
     Name = "${var.vpc_name}-nat"
     stream = "${var.stream_tag}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ##############################################################################
