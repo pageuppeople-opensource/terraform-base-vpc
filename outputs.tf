@@ -5,7 +5,3 @@ output "bastion server public ip a"{
 output "bastion server public ip b"{
   value = "${module.bastion_server_b.public-ip}"
 }
-
-output "bastion server public ip c"{
-  value = "${module.bastion_server_c.public-ip}"
-}

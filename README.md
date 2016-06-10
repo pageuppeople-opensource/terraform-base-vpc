@@ -39,7 +39,7 @@ The variables.tf terraform file can be further modified, for example it defaults
 
 ### KMS encrypted consul atlas token
 
-aws kms encrypt --key-id your-kms-key-id --plaintext fileb://<(echo your-atlas-token) --output text --query CiphertextBlob | base64
+`aws kms encrypt --key-id <your-kms-key-id> --plaintext fileb://<(echo <your-atlas-token>) --output text --query CiphertextBlob | base64`
 
 ## Using Terraform
 

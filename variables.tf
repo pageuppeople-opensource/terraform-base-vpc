@@ -107,19 +107,11 @@ variable "public_subnet_cidr_b"{
 }
 
 ### MANDATORY ###
-variable "public_subnet_cidr_c"{
-}
-
-### MANDATORY ###
 variable "private_subnet_cidr_a"{
 }
 
 ### MANDATORY ###
 variable "private_subnet_cidr_b"{
-}
-
-### MANDATORY ###
-variable "private_subnet_cidr_c"{
 }
 
 ###################################################################

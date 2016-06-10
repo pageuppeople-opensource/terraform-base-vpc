@@ -134,7 +134,7 @@ resource "aws_autoscaling_group" "consul" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
   # assuming here we create two subnets
-  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
+  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 
   tag {
     key = "Name"
@@ -207,7 +207,7 @@ resource "aws_security_group" "consul_elb" {
 resource "aws_elb" "consul" {
   name = "${var.vpc_name}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
+  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 
   listener {
     instance_port = 8500
@@ -280,7 +280,7 @@ resource "aws_security_group" "consul_internal_elb" {
 resource "aws_elb" "consul_internal" {
   name = "${var.vpc_name}-consul-internal-elb"
   security_groups = ["${aws_security_group.consul_internal_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}", "${aws_subnet.public_c.id}"]
+  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
 
   listener {
     instance_port = 8500
