@@ -175,6 +175,10 @@ variable "bastion_num_nodes_subnet_c" {
 variable "consul_public_hosted_zone_id" {}
 variable "consul_public_hosted_zone_name" {}
 
+### MANDATORY ###
+variable "consul_iam_profile" {
+}
+
 variable "consul_role_tag" {
   default = "MONITORING"
 }
@@ -203,6 +207,7 @@ variable "consul_instances" {
   default = "3"
 }
 
+### MANDATORY ###
 variable "dns_server" {
 }
 
@@ -214,5 +219,6 @@ variable "atlas" {
   default = "example/atlas"
 }
 
-variable "atlas_token" {
+### MANDATORY ###
+variable "encrypted_atlas_token" {
 }

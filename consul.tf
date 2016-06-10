@@ -92,11 +92,12 @@ resource "template_file" "user_data" {
   template = "${file("${path.root}/consul_server/templates/user-data.tpl")}"
 
   vars {
-    dns_server  = "${var.dns_server}"
-    num_nodes   = "${var.consul_instances}"
-    consul_dc   = "${var.consul_dc}"
-    atlas       = "${var.atlas}"
-    atlas_token = "${var.atlas_token}"
+    aws_region            = "${var.aws_region}"
+    dns_server            = "${var.dns_server}"
+    num_nodes             = "${var.consul_instances}"
+    consul_dc             = "${var.consul_dc}"
+    atlas                 = "${var.atlas}"
+    encrypted_atlas_token = "${var.encrypted_atlas_token}"
   }
 
   lifecycle {
@@ -112,8 +113,7 @@ resource "aws_launch_configuration" "consul" {
   associate_public_ip_address = true
   ebs_optimized = false
   key_name = "${var.public_key_name}"
-  # TODO
-  /*iam_instance_profile = "${aws_iam_instance_profile.consul.id}"*/
+  iam_instance_profile = "${var.consul_iam_profile}"
   user_data = "${template_file.user_data.rendered}"
 
   lifecycle {

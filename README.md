@@ -3,6 +3,8 @@ AWS VPC, Bastion & Consul cluster using Terraform
 
 Builds an AWS VPC, with public and private subnets.
 
+This implementation also includes peering to another existing VPC and a consul cluster. The consul cluster uses an kms encrypted atlas token for auto join.
+
 ## Requirements
 
 * Terraform >= v0.6.12
@@ -34,6 +36,10 @@ terraform (plan|apply|destroy) -var 'bastion_amis.ap-southeast-2=foozie'
 ```
 
 The variables.tf terraform file can be further modified, for example it defaults to `ap-southeast-2` for the AWS region.
+
+### KMS encrypted consul atlas token
+
+aws kms encrypt --key-id your-kms-key-id --plaintext fileb://<(echo your-atlas-token) --output text --query CiphertextBlob | base64
 
 ## Using Terraform
 

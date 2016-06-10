@@ -38,7 +38,8 @@ script
 
   # Get the IP
   BIND=`ifconfig eth0 | grep "inet addr" | awk '{ print substr($2,6) }'`
-  ADVERTISE=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
+  ADVERTISE=`curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
+  ATLAS_TOKEN=`sudo -H -u ec2-user bash -c 'aws kms decrypt --ciphertext-blob fileb://<(echo '${encrypted_atlas_token}' | base64 -d) --output text --query Plaintext --region ${aws_region} | base64 -d'`
 
   exec /usr/local/bin/consul agent \
     $${CONSUL_FLAGS} \
@@ -50,7 +51,7 @@ script
     -dc="${consul_dc}" \
     -atlas=${atlas} \
     -atlas-join \
-    -atlas-token="${atlas_token}" \
+    -atlas-token=$${ATLAS_TOKEN} \
     >>/var/log/consul.log 2>&1
 end script
 
