@@ -174,13 +174,6 @@ resource "aws_security_group" "consul_elb" {
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["${split(",", var.external_cidr_blocks)}"]
-  }
-
-  ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
@@ -208,13 +201,6 @@ resource "aws_elb" "consul" {
   name = "${var.vpc_name}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
   subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-
-  listener {
-    instance_port = 8500
-    instance_protocol = "http"
-    lb_port = 80
-    lb_protocol = "http"
-  }
 
   listener {
     instance_port = 8500
