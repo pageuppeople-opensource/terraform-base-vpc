@@ -65,6 +65,40 @@ resource "aws_vpc_peering_connection" "vpc_to_parent" {
 ##############################################################################
 # Public Subnets
 ##############################################################################
+
+resource "aws_route_table" "public" {
+  vpc_id = "${aws_vpc.default.id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.default.id}"
+  }
+
+  tags {
+    Name = "${var.vpc_name}-public"
+  }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id            = "${aws_vpc.default.id}"
+  cidr_block        = "${element(split(",", var.public_subnets_cidr), count.index)}"
+  availability_zone = "${element(split(",", var.availability_zones), count.index)}"
+  count             = "${length(split(",", var.public_subnets_cidr))}"
+
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "${var.vpc_name}-${format("public-%02d", count.index+1)}"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  count          = "${length(split(",", var.public_subnets_cidr))}"
+  subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
+  route_table_id = "${aws_route_table.public.id}"
+}
+
+# DEPRECATED
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.default.id}"
 
@@ -79,6 +113,7 @@ resource "aws_route_table" "public" {
   }
 }
 
+# DEPRECATED
 resource "aws_subnet" "public_a" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
@@ -95,6 +130,7 @@ resource "aws_subnet" "public_a" {
   }
 }
 
+# DEPRECATED
 resource "aws_subnet" "public_b" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
@@ -111,24 +147,41 @@ resource "aws_subnet" "public_b" {
   }
 }
 
+# DEPRECATED
 resource "aws_route_table_association" "public_a" {
   subnet_id = "${aws_subnet.public_a.id}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
+# DEPRECATED
 resource "aws_route_table_association" "public_b" {
   subnet_id = "${aws_subnet.public_b.id}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
 ##############################################################################
-# NAT Boxes
+# NAT Gateways for routing
 ##############################################################################
 
+resource "aws_nat_gateway" "default" {
+  count         = "${length(split(",", var.private_subnets_cidr))}"
+  allocation_id = "${element(aws_eip.nat.*.id, count.index)}"
+  subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
+
+  depends_on    = ["aws_internet_gateway.default"]
+}
+
+resource "aws_eip" "nat" {
+  count = "${length(split(",", var.private_subnets_cidr))}"
+  vpc   = true
+}
+
+# DEPRECATED
 resource "aws_eip" "nat_a" {
     vpc = true
 }
 
+# DEPRECATED
 resource "aws_nat_gateway" "nat_a" {
     allocation_id = "${aws_eip.nat_a.id}"
     subnet_id = "${aws_subnet.public_a.id}"
@@ -136,10 +189,12 @@ resource "aws_nat_gateway" "nat_a" {
     depends_on = ["aws_internet_gateway.default"]
 }
 
+# DEPRECATED
 resource "aws_eip" "nat_b" {
     vpc = true
 }
 
+# DEPRECATED
 resource "aws_nat_gateway" "nat_b" {
     allocation_id = "${aws_eip.nat_b.id}"
     subnet_id = "${aws_subnet.public_b.id}"
@@ -147,60 +202,42 @@ resource "aws_nat_gateway" "nat_b" {
     depends_on = ["aws_internet_gateway.default"]
 }
 
-resource "aws_security_group" "nat" {
-  name = "${var.vpc_name}-nat"
-  description = "NAT security group"
-  vpc_id = "${aws_vpc.default.id}"
-
-  ingress {
-    from_port = 0
-    to_port = 65535
-    protocol = "tcp"
-    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
-  }
-
-  ingress {
-    from_port = 123
-    to_port = 123
-    protocol = "udp"
-    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
-  }
-
-  ingress {
-    from_port = 53
-    to_port = 53
-    protocol = "udp"
-    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
-  }
-
-  ingress {
-    from_port = -1
-    to_port = -1
-    protocol = "icmp"
-    cidr_blocks = ["${split(",", var.nat_subnet_cidr)}"]
-  }
-
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name = "${var.vpc_name}-nat"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 ##############################################################################
 # Private subnets
 ##############################################################################
 
+resource "aws_route_table" "private" {
+  count  = "${length(split(",", var.private_subnets_cidr))}"
+  vpc_id = "${aws_vpc.default.id}"
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
+  }
+
+  tags {
+    Name = "${var.vpc_name}-${format("private-%02d", count.index+1)}"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = "${aws_vpc.default.id}"
+  cidr_block        = "${element(split(",", var.private_subnets_cidr), count.index)}"
+  availability_zone = "${element(split(",", var.availability_zones), count.index)}"
+  count             = "${length(split(",", var.private_subnets_cidr))}"
+
+  tags {
+    Name = "${var.vpc_name}-${format("private-%02d", count.index+1)}"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count          = "${length(split(",", var.private_subnets_cidr))}"
+  subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
+  route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
+}
+
+# DEPRECATED
 resource "aws_route_table" "private_a" {
   vpc_id = "${aws_vpc.default.id}"
 
@@ -224,6 +261,7 @@ resource "aws_route_table" "private_a" {
   }
 }
 
+# DEPRECATED
 resource "aws_route_table" "private_b" {
   vpc_id = "${aws_vpc.default.id}"
 
@@ -247,6 +285,7 @@ resource "aws_route_table" "private_b" {
   }
 }
 
+# DEPRECATED
 resource "aws_subnet" "private_a" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "a")}"
@@ -262,6 +301,7 @@ resource "aws_subnet" "private_a" {
   }
 }
 
+# DEPRECATED
 resource "aws_subnet" "private_b" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${concat(var.aws_region, "b")}"
@@ -277,11 +317,13 @@ resource "aws_subnet" "private_b" {
   }
 }
 
+# DEPRECATED
 resource "aws_route_table_association" "private_a" {
   subnet_id = "${aws_subnet.private_a.id}"
   route_table_id = "${aws_route_table.private_a.id}"
 }
 
+# DEPRECATED
 resource "aws_route_table_association" "private_b" {
   subnet_id = "${aws_subnet.private_b.id}"
   route_table_id = "${aws_route_table.private_b.id}"

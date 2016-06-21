@@ -126,7 +126,7 @@ resource "aws_launch_configuration" "consul" {
 }
 
 resource "aws_autoscaling_group" "consul" {
-  availability_zones = ["${split(",", var.consul_availability_zones)}"]
+  availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.consul_instances}"
   min_size = "${var.consul_instances}"
   desired_capacity = "${var.consul_instances}"

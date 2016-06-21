@@ -69,6 +69,11 @@ variable "aws_region" {
   default = "ap-southeast-2"
 }
 
+### MANDATORY ###
+variable "availability_zones"{
+  description="availability zones"
+}
+
 # the ability to add additional existing security groups.
 variable "additional_security_groups" {
   default = ""
@@ -99,10 +104,22 @@ variable "nat_subnet_cidr"{
 }
 
 ### MANDATORY ###
+variable "public_subnets_cidr"{
+  description = "Comma separated list of public subnets"
+}
+
+### MANDATORY ###
+variable "private_subnets_cidr"{
+  description = "Comma separated list of private subnets"
+}
+
+### MANDATORY ###
+### DEPRECATED ###
 variable "public_subnet_cidr_a"{
 }
 
 ### MANDATORY ###
+### DEPRECATED ###
 variable "public_subnet_cidr_b"{
 }
 
@@ -188,10 +205,6 @@ variable "consul_amis" {
   default = {
     ap-southeast-2 = "ami-8997ecb3"
   }
-}
-
-variable "consul_availability_zones"{
-  description="availability zones, consul only at present"
 }
 
 variable "consul_instances" {
