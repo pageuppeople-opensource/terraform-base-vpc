@@ -119,10 +119,6 @@ resource "aws_launch_configuration" "consul" {
   lifecycle {
     create_before_destroy = true
   }
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_autoscaling_group" "consul" {
@@ -199,7 +195,7 @@ resource "aws_security_group" "consul_elb" {
 resource "aws_elb" "consul" {
   name = "${var.vpc_name}-consul-elb"
   security_groups = ["${aws_security_group.consul_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  subnets = ["${aws_subnet.public.*.id}"]
 
   listener {
     instance_port = 8500
@@ -265,7 +261,7 @@ resource "aws_security_group" "consul_internal_elb" {
 resource "aws_elb" "consul_internal" {
   name = "${var.vpc_name}-consul-internal-elb"
   security_groups = ["${aws_security_group.consul_internal_elb.id}"]
-  subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  subnets = ["${aws_subnet.public.*.id}"]
 
   listener {
     instance_port = 8500

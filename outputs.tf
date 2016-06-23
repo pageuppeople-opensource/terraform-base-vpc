@@ -10,10 +10,7 @@ output "private_subnets" {
   value = "${join(",", aws_subnet.private.*.id)}"
 }
 
-output "bastion server public ip a"{
-  value = "${module.bastion_server_a.public-ip}"
+output "bastion public ips"{
+  value = "${join(",", aws_instance.bastion.*.public-ip)}"
 }
 
-output "bastion server public ip b"{
-  value = "${module.bastion_server_b.public-ip}"
-}

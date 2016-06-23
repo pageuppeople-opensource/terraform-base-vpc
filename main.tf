@@ -98,67 +98,6 @@ resource "aws_route_table_association" "public" {
   route_table_id = "${aws_route_table.public_dep.id}"
 }
 
-# DEPRECATED
-resource "aws_route_table" "public" {
-  vpc_id = "${aws_vpc.default.id}"
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.default.id}"
-  }
-
-  tags {
-    Name = "${var.vpc_name}-public-route-table"
-    Stream = "${var.stream_tag}"
-  }
-}
-
-# DEPRECATED
-resource "aws_subnet" "public_a" {
-  vpc_id = "${aws_vpc.default.id}"
-  availability_zone = "${concat(var.aws_region, "a")}"
-  cidr_block = "${var.public_subnet_cidr_a}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "${var.vpc_name}PublicA"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_subnet" "public_b" {
-  vpc_id = "${aws_vpc.default.id}"
-  availability_zone = "${concat(var.aws_region, "b")}"
-  cidr_block = "${var.public_subnet_cidr_b}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "${var.vpc_name}PublicB"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_route_table_association" "public_a" {
-  subnet_id = "${aws_subnet.public_a.id}"
-  route_table_id = "${aws_route_table.public.id}"
-}
-
-# DEPRECATED
-resource "aws_route_table_association" "public_b" {
-  subnet_id = "${aws_subnet.public_b.id}"
-  route_table_id = "${aws_route_table.public.id}"
-}
-
 ##############################################################################
 # NAT Gateways for routing
 ##############################################################################
@@ -174,32 +113,6 @@ resource "aws_nat_gateway" "default" {
 resource "aws_eip" "nat" {
   count = "${length(split(",", var.private_subnets_cidr))}"
   vpc   = true
-}
-
-# DEPRECATED
-resource "aws_eip" "nat_a" {
-    vpc = true
-}
-
-# DEPRECATED
-resource "aws_nat_gateway" "nat_a" {
-    allocation_id = "${aws_eip.nat_a.id}"
-    subnet_id = "${aws_subnet.public_a.id}"
-
-    depends_on = ["aws_internet_gateway.default"]
-}
-
-# DEPRECATED
-resource "aws_eip" "nat_b" {
-    vpc = true
-}
-
-# DEPRECATED
-resource "aws_nat_gateway" "nat_b" {
-    allocation_id = "${aws_eip.nat_b.id}"
-    subnet_id = "${aws_subnet.public_b.id}"
-
-    depends_on = ["aws_internet_gateway.default"]
 }
 
 ##############################################################################
@@ -235,98 +148,6 @@ resource "aws_route_table_association" "private" {
   count          = "${length(split(",", var.private_subnets_cidr))}"
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
-}
-
-# DEPRECATED
-resource "aws_route_table" "private_a" {
-  vpc_id = "${aws_vpc.default.id}"
-
-  route {
-      vpc_peering_connection_id = "${aws_vpc_peering_connection.vpc_to_parent.id}"
-      cidr_block = "${var.aws_parent_vpc_cidr}"
-  }
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = "${aws_nat_gateway.nat_a.id}"
-  }
-
-  tags {
-    Name = "${var.vpc_name}-private-route-table-a"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_route_table" "private_b" {
-  vpc_id = "${aws_vpc.default.id}"
-
-  route {
-      vpc_peering_connection_id = "${aws_vpc_peering_connection.vpc_to_parent.id}"
-      cidr_block = "${var.aws_parent_vpc_cidr}"
-  }
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = "${aws_nat_gateway.nat_b.id}"
-  }
-
-  tags {
-    Name = "${var.vpc_name}-private-route-table-b"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_subnet" "private_a" {
-  vpc_id = "${aws_vpc.default.id}"
-  availability_zone = "${concat(var.aws_region, "a")}"
-  cidr_block = "${var.private_subnet_cidr_a}"
-
-  tags {
-    Name = "${var.vpc_name}PrivateA"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_subnet" "private_b" {
-  vpc_id = "${aws_vpc.default.id}"
-  availability_zone = "${concat(var.aws_region, "b")}"
-  cidr_block = "${var.private_subnet_cidr_b}"
-
-  tags {
-    Name = "${var.vpc_name}PrivateB"
-    stream = "${var.stream_tag}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# DEPRECATED
-resource "aws_route_table_association" "private_a" {
-  subnet_id = "${aws_subnet.private_a.id}"
-  route_table_id = "${aws_route_table.private_a.id}"
-}
-
-# DEPRECATED
-resource "aws_route_table_association" "private_b" {
-  subnet_id = "${aws_subnet.private_b.id}"
-  route_table_id = "${aws_route_table.private_b.id}"
 }
 
 ##############################################################################
