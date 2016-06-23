@@ -66,7 +66,7 @@ resource "aws_vpc_peering_connection" "vpc_to_parent" {
 # Public Subnets
 ##############################################################################
 
-resource "aws_route_table" "public" {
+resource "aws_route_table" "public_dep" {
   vpc_id = "${aws_vpc.default.id}"
 
   route {
@@ -95,7 +95,7 @@ resource "aws_subnet" "public" {
 resource "aws_route_table_association" "public" {
   count          = "${length(split(",", var.public_subnets_cidr))}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
-  route_table_id = "${aws_route_table.public.id}"
+  route_table_id = "${aws_route_table.public_dep.id}"
 }
 
 # DEPRECATED

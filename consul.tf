@@ -133,8 +133,7 @@ resource "aws_autoscaling_group" "consul" {
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
-  # assuming here we create two subnets
-  vpc_zone_identifier = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+  vpc_zone_identifier = ["${aws_subnet.public.*.id}"]
 
   tag {
     key = "Name"
