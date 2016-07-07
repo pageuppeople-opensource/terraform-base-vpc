@@ -25,7 +25,7 @@ resource "aws_security_group" "bastion" {
 
   tags = {
     Name = "${var.search_specific_name}-bastion"
-    stream = "${var.stream_tag}"
+    stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -49,7 +49,7 @@ resource "aws_instance" "bastion" {
 
   tags = {
     Name = "${var.search_specific_name}-${format("bastion-%02d", count.index+1)}"
-    Stream = "${var.stream_tag}"
+    Stream = "${var.transitioning_stream_tag}"
     ServerRole = "${var.bastion_role_tag}"
     "Cost Center" = "${var.costcenter_tag}"
     Environment = "${var.environment_tag}"

@@ -31,6 +31,10 @@ variable "stream_tag" {
   default = "default"
 }
 
+variable "transitioning_stream_tag" {
+  default = "Orcas"
+}
+
 ###################################################################
 # Vpc Peering configuration below
 ###################################################################

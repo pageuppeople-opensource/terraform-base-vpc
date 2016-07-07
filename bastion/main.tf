@@ -1,5 +1,5 @@
 variable "name" {}
-variable "stream_tag" {}
+variable "transitioning_stream_tag" {}
 variable "role_tag" {}
 variable "environment_tag" {}
 variable "costcenter_tag" {}
@@ -20,7 +20,7 @@ resource "aws_instance" "bastion" {
   source_dest_check = false
   tags = {
     Name = "${var.name}"
-    Stream = "${var.stream_tag}"
+    Stream = "${var.transitioning_stream_tag}"
     ServerRole = "${var.role_tag}"
     "Cost Center" = "${var.costcenter_tag}"
     Environment = "${var.environment_tag}"

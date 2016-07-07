@@ -50,7 +50,7 @@ resource "aws_security_group" "consul_server" {
 
   tags {
     Name = "${var.search_specific_name}-consul-server"
-    stream = "${var.stream_tag}"
+    stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -80,7 +80,7 @@ resource "aws_security_group" "consul_agent" {
 
   tags {
     Name = "${var.search_specific_name}-consul-agent"
-    stream = "${var.stream_tag}"
+    stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -138,7 +138,7 @@ resource "aws_autoscaling_group" "consul" {
   }
   tag {
     key = "Stream"
-    value = "${var.stream_tag}"
+    value = "${var.transitioning_stream_tag}"
     propagate_at_launch = true
   }
   tag {
@@ -184,7 +184,7 @@ resource "aws_security_group" "consul_elb" {
 
   tags {
     Name = "${var.search_specific_name}-consul-elb"
-    stream = "${var.stream_tag}"
+    stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -221,7 +221,7 @@ resource "aws_elb" "consul" {
 
   tags {
     Name = "consul elb"
-    Stream = "${var.stream_tag}"
+    Stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -250,7 +250,7 @@ resource "aws_security_group" "consul_internal_elb" {
 
   tags {
     Name = "${var.search_specific_name}-consul-internal-elb"
-    stream = "${var.stream_tag}"
+    stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
@@ -286,7 +286,7 @@ resource "aws_elb" "consul_internal" {
 
   tags {
     Name = "consul internal elb"
-    Stream = "${var.stream_tag}"
+    Stream = "${var.transitioning_stream_tag}"
   }
 
   lifecycle {
