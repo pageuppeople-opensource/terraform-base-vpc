@@ -6,6 +6,11 @@ variable "vpc_name" {
   default = "default"
 }
 
+variable "search_specific_name"{
+  description = "search teams items are going to be named after this. This is inprepartion to seperating search vs cross domain"
+  default = "candidate"
+}
+
 variable "environment" {
   description = "the name of the environment"
   default = "default"

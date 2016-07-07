@@ -3,7 +3,7 @@
 ##############################################################################
 
 resource "aws_security_group" "bastion" {
-  name = "${var.vpc_name}-bastion"
+  name = "${var.search_specific_name}-bastion"
   description = "Allow access from allowed_network via SSH"
   vpc_id = "${aws_vpc.default.id}"
 
@@ -24,7 +24,7 @@ resource "aws_security_group" "bastion" {
   }
 
   tags = {
-    Name = "${var.vpc_name}-bastion"
+    Name = "${var.search_specific_name}-bastion"
     stream = "${var.stream_tag}"
   }
 
@@ -48,7 +48,7 @@ resource "aws_instance" "bastion" {
   key_name = "${var.bastion_key_name}"
 
   tags = {
-    Name = "${var.vpc_name}-${format("bastion-%02d", count.index+1)}"
+    Name = "${var.search_specific_name}-${format("bastion-%02d", count.index+1)}"
     Stream = "${var.stream_tag}"
     ServerRole = "${var.bastion_role_tag}"
     "Cost Center" = "${var.costcenter_tag}"
@@ -64,4 +64,3 @@ resource "aws_route53_record" "bastion" {
    ttl = "300"
    records = ["${aws_instance.bastion.*.public_ip}"]
 }
-
