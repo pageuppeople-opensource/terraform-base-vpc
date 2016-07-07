@@ -149,17 +149,3 @@ resource "aws_route_table_association" "private" {
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
 }
-
-##############################################################################
-# Route 53
-##############################################################################
-
-resource "aws_route53_zone" "private_zone" {
-  name = "${var.private_hosted_zone_name}"
-  vpc_id = "${aws_vpc.default.id}"
-
-  tags {
-    Name = "Private zone ${var.private_hosted_zone_name}"
-    stream = "${var.stream_tag}"
-  }
-}
