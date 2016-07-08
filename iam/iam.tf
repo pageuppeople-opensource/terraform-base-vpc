@@ -9,7 +9,7 @@ resource "aws_iam_role_policy" "vpc" {
   role     = "${aws_iam_role.vpc.id}"
 }
 
-//TODO: Has permission to decrpt everthing within this VPC. Thats crap, need to be fixed.
+//TODO: Understand the impact of this permission
 resource "aws_iam_instance_profile" "vpc" {
   name = "${var.search_specific_name}-vpc-kms-profile"
   path = "/"
