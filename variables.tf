@@ -36,7 +36,7 @@ variable "transitioning_stream_tag" {
 }
 
 ###################################################################
-# Vpc Peering configuration below
+# Vpc Peering configuration
 ###################################################################
 
 ### MANDATORY ###
@@ -55,7 +55,7 @@ variable "aws_parent_vpc_cidr"{
 }
 
 ###################################################################
-# AWS configuration below
+# AWS configuration
 ###################################################################
 
 variable "bastion_key_name" {
@@ -89,7 +89,7 @@ variable "additional_security_groups" {
 }
 
 ###################################################################
-# Vpc configuration below
+# Vpc configuration
 ###################################################################
 
 ### MANDATORY ###
@@ -141,7 +141,15 @@ variable "private_subnet_cidr_b"{
 }
 
 ###################################################################
-# Bastion configuration below
+# Head office configuration
+###################################################################
+
+variable "headoffice_cidr_block" {
+  default = "10.12.0.0/21"
+}
+
+###################################################################
+# Bastion configuration
 ###################################################################
 variable "bastion_public_hosted_zone_id" {}
 variable "bastion_public_hosted_zone_name" {}
@@ -188,7 +196,7 @@ variable "bastion_num_nodes_subnet_c" {
 }
 
 ###################################################################
-# Consul configuration below
+# Consul configuration
 ###################################################################
 variable "consul_public_hosted_zone_id" {}
 variable "consul_public_hosted_zone_name" {}
