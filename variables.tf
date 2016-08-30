@@ -68,11 +68,6 @@ variable "public_key_name" {
   default = "public"
 }
 
-variable "private_key_name" {
-  description = "Name of the private SSH keypair to use in AWS."
-  default = "private"
-}
-
 variable "aws_region" {
   description = "AWS region to launch servers."
   default = "ap-southeast-2"
@@ -123,24 +118,6 @@ variable "private_subnets_cidr"{
 }
 
 ### MANDATORY ###
-### DEPRECATED ###
-variable "public_subnet_cidr_a"{
-}
-
-### MANDATORY ###
-### DEPRECATED ###
-variable "public_subnet_cidr_b"{
-}
-
-### MANDATORY ###
-variable "private_subnet_cidr_a"{
-}
-
-### MANDATORY ###
-variable "private_subnet_cidr_b"{
-}
-
-
 variable "vpn_cidr_range"{
   description = "cidr range from which vpn connections are allowed"
 }
