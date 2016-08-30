@@ -127,6 +127,8 @@ resource "aws_autoscaling_group" "consul" {
   min_size = "${var.consul_instances}"
   desired_capacity = "${var.consul_instances}"
   default_cooldown = 30
+  health_check_grace_period = 0
+  metrics_granularity = ""
   force_delete = true
   launch_configuration = "${aws_launch_configuration.consul.id}"
   vpc_zone_identifier = ["${aws_subnet.public.*.id}"]
