@@ -150,53 +150,6 @@ variable "vpn_gateway_id"{
 }
 
 ###################################################################
-# Bastion configuration below
-###################################################################
-variable "bastion_public_hosted_zone_id" {}
-variable "bastion_public_hosted_zone_name" {}
-
-variable "bastion_role_tag" {
-  default = "SECURITY"
-}
-
-variable "bastion_instance_type" {
-  default = "t2.micro"
-}
-
-variable "bastion_security_group_name" {
-  description = "Name of security group to use in AWS."
-  default = "bastion"
-}
-
-variable "bastion_amis" {
-  default = {
-    eu-central-1 = "ami-46073a5b"
-    ap-southeast-1 = "ami-b49dace6"
-    ap-southeast-2 = "ami-e7ee9edd"
-    eu-west-1 = "ami-b0ac25c3"
-    us-west-1 = "ami-7da94839"
-  }
-}
-
-# number of nodes in zone a
-variable "bastion_num_nodes_subnet_a" {
-  description = "Bastion server nodes in a"
-  default = "1"
-}
-
-# number of nodes in zone b
-variable "bastion_num_nodes_subnet_b" {
-  description = "Bastion server nodes in b"
-  default = "1"
-}
-
-# number of nodes in zone b
-variable "bastion_num_nodes_subnet_c" {
-  description = "Bastion server nodes in c"
-  default = "1"
-}
-
-###################################################################
 # Consul configuration below
 ###################################################################
 variable "consul_public_hosted_zone_id" {}

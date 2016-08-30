@@ -177,6 +177,20 @@ resource "aws_security_group" "consul_elb" {
     cidr_blocks = ["${split(",", var.external_cidr_blocks)}"]
   }
 
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "icmp"
+    cidr_blocks = ["${var.vpn_cidr_range}"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = ["${var.vpn_cidr_range}"]
+  }
+  
   egress {
     from_port = 0
     to_port = 0
