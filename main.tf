@@ -74,6 +74,11 @@ resource "aws_route_table" "public" {
     gateway_id = "${aws_internet_gateway.default.id}"
   }
 
+  route {
+    cidr_block     = "${var.vpn_cidr_range}"
+    gateway_id = "${var.vpn_gateway_id}"
+  }
+
   tags {
     Name = "${var.vpc_name}-public"
   }
@@ -126,6 +131,11 @@ resource "aws_route_table" "private" {
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = "${element(aws_nat_gateway.default.*.id, count.index)}"
+  }
+
+  route {
+    cidr_block     = "${var.vpn_cidr_range}"
+    gateway_id = "${var.vpn_gateway_id}"
   }
 
   tags {

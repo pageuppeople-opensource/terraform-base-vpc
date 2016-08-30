@@ -140,6 +140,15 @@ variable "private_subnet_cidr_a"{
 variable "private_subnet_cidr_b"{
 }
 
+
+variable "vpn_cidr_range"{
+  description = "cidr range from which vpn connections are allowed"
+}
+
+variable "vpn_gateway_id"{
+  description = "vpn gateway id to which incoming vpn connections are to be routed"
+}
+
 ###################################################################
 # Bastion configuration below
 ###################################################################
