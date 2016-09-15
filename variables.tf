@@ -151,7 +151,8 @@ variable "consul_security_group_name" {
 
 variable "consul_amis" {
   default = {
-    ap-southeast-2 = "ami-8997ecb3"
+    ap-southeast-2 = "ami-8997ecb3",
+    eu-west-1 = "ami-aa1d63d9"
   }
 }
 
