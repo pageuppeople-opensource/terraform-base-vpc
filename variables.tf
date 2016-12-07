@@ -79,7 +79,7 @@ variable "availability_zones"{
 }
 
 # the ability to add additional existing security groups.
-variable "additional_security_groups" {
+variable "additional_security_groups" {  
   default = ""
 }
 
@@ -151,7 +151,8 @@ variable "consul_security_group_name" {
 
 variable "consul_amis" {
   default = {
-    ap-southeast-2 = "ami-8997ecb3"
+    ap-southeast-2 = "ami-fa022499",
+    eu-west-1 = "ami-aa1d63d9"
   }
 }
 

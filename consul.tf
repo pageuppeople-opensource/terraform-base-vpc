@@ -109,7 +109,7 @@ resource "aws_launch_configuration" "consul" {
   name_prefix = "${var.search_specific_name}-consul-lc-"
   image_id = "${lookup(var.consul_amis, var.aws_region)}"
   instance_type = "${var.consul_instance_type}"
-  security_groups = ["${split(",", replace(concat(aws_security_group.consul_server.id, ",", aws_security_group.consul_agent.id, ",", var.additional_security_groups), "/,\\s?$/", ""))}"]
+  security_groups = [ "${aws_security_group.consul_server.id}", "${aws_security_group.consul_agent.id}" ]
   associate_public_ip_address = true
   ebs_optimized = false
   key_name = "${var.public_key_name}"
